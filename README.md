@@ -123,6 +123,6 @@ const Container = tw(SpecialBlueContainer)`
 
 // Use them like any other React component – except they're styled!
 <Container>
-  <Title>Hello World, this is my first styled component!</Title>
+  <Title>Hello World, this is my first tailwind styled component!</Title>
 </Container>
 ```
