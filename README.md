@@ -1,7 +1,7 @@
 # Tailwind-Styled-Component
 Create tailwind css react components like styled components with classes name on multiple lines
 
-### Install
+## Install
 
 ```bash
 # using npm
@@ -11,16 +11,16 @@ npm i -D tailwind-styled-components
 yarn add -D tailwind-styled-components
 ```
 
-### Usage
+## Usage
 
-## Import
+### Import
 
 
 ```js
 import tw from "tailwind-styled-components"
 ```
 
-## Basic
+### Basic
 
 You can use tailwind-styled-components without using styled components
 
@@ -43,7 +43,7 @@ Will be rendered as
 </div>
 ```
 
-## Extends
+### Extends
 
 ```js
 const RedContainer = tw(Container)`
@@ -62,7 +62,7 @@ Will be rendered as
 *Overrides the parent background color class*
 
 
-## Extends Styled Component
+### Extends Styled Component
 
 Extend [styled components](https://github.com/styled-components/styled-components)
 
@@ -86,7 +86,7 @@ Will be rendered as
 ```
 
 
-### Example
+## Example
 
 ```jsx
 import React from "react"
