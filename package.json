@@ -1,6 +1,6 @@
 {
     "name": "tailwind-styled-components",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Create tailwind css react components like styled components with classes name on multiple lines",
     "main": "dist/index.js",
     "files": [
@@ -11,6 +11,10 @@
         "watch": "tsc -w",
         "clean": "rimraf dist",
         "prepublishOnly": "npm run clean && npm run build"
+    },
+    "homepage": "https://github.com/MathiasGilson/tailwind-styled-component",
+    "bugs": {
+        "url": "https://github.com/MathiasGilson/tailwind-styled-component/issues"
     },
     "author": "@MathiasGilson",
     "license": "MIT",
