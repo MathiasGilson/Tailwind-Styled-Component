@@ -43,6 +43,53 @@ Will be rendered as
 </div>
 ```
 
+
+### Conditional class names
+
+Set tailwind class conditionaly with the same syntaxt as [styled components](https://styled-components.com/docs/basics#adapting-based-on-props)
+
+```js
+const Button = tw.button`
+    flex
+    ${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}
+`
+```
+---
+**Be sure to set the entire class name**
+
+✅  Do `${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}`
+
+❌  Don't `bg-indigo-${p => p.primary ? "600" : "300"}`
+
+---
+
+```jsx
+<Button primary={true} />
+```
+
+Will be rendered as
+
+```html
+<button class="flex bg-indigo-600">
+  <!-- children -->
+</button>
+```
+
+and
+
+```jsx
+<Button primary={false} />
+```
+
+Will be rendered as
+
+```html
+<button class="flex bg-indigo-300">
+  <!-- children -->
+</button>
+```
+
+
 ### Extends
 
 ```js
@@ -69,7 +116,7 @@ Extend [styled components](https://github.com/styled-components/styled-component
 
 ```js
 const StyledComponentWithCustomJs = styled.div`
-    filter: blur(1px)
+    filter: blur(1px);
 `
 
 const  = tw(StyledComponentWithCustomJs)`
@@ -102,7 +149,7 @@ const Container = tw.div`
 // Create a <Title> react component that renders an <h1> which is
 // indigo and sized at 1.125rem
 const Title = tw.h1`
-  text-lg
+  ${p => p.large ? "text-lg": "text-base"}
   text-indigo-500
 `
 
@@ -123,6 +170,6 @@ const Container = tw(SpecialBlueContainer)`
 
 // Use them like any other React component – except they're styled!
 <Container>
-  <Title>Hello World, this is my first tailwind styled component!</Title>
+  <Title large={true}>Hello World, this is my first tailwind styled component!</Title>
 </Container>
 ```
