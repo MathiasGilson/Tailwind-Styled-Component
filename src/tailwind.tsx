@@ -38,13 +38,11 @@ type FunctionTemplate = (
     ...templateElements: any[]
 ) => (props: { children?: any; [props: string]: any }) => any
 
-const functionTemplate = (Element: any): FunctionTemplate => (template, ...templateElements) => ({
-    children,
-    ...props
-}) => {
-    return (
+const functionTemplate = (Element: any): FunctionTemplate => (template, ...templateElements) =>
+    React.forwardRef(({ children, ...props }, ref) => (
         <Element
             {...props}
+            ref={ref}
             className={parseTailwindClassNames(
                 cleanTemplate(template, props.className),
                 ...templateElements.map((t) => t(props))
@@ -52,8 +50,7 @@ const functionTemplate = (Element: any): FunctionTemplate => (template, ...templ
         >
             {children}
         </Element>
-    )
-}
+    ))
 
 type IntrinsicElements = {
     [key in keyof JSX.IntrinsicElements]?: FunctionTemplate

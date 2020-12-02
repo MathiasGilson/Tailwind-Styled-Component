@@ -1,6 +1,6 @@
 {
     "name": "tailwind-styled-components",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Create tailwind css react components like styled components with classes name on multiple lines",
     "main": "dist/index.js",
     "files": [
@@ -32,6 +32,7 @@
     },
     "dependencies": {
         "react": "^17.0.1",
+        "tailwind-styled-components": "^1.0.5",
         "tailwindcss-classnames": "^1.9.0"
     }
 }
