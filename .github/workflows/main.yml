@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Change dir
-        run: mkdir build && cd build
+        run: cd .. && mkdir build && cd build && ls
         
       - name: Fetch package
         run: npm i tailwind-styled-components
