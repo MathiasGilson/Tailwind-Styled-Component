@@ -23,6 +23,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
+      - name: Change dir
+        run: mkdir build && cd build
+        
       - name: Fetch package
         run: npm i tailwind-styled-components
