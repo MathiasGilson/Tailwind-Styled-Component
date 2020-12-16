@@ -20,8 +20,5 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Change dir
-        run: cd && mkdir build && cd build && ls
-        
       - name: Fetch package
         run: npm i tailwind-styled-components
