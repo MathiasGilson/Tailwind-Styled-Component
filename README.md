@@ -1,5 +1,11 @@
 # Tailwind-Styled-Component
+
 Create tailwind css react components like styled components with classes name on multiple lines
+
+[![NPM version][npm-image]][npm-url] 
+
+[npm-image]: http://img.shields.io/npm/v/tailwind-styled-components.svg?style=flat-square
+[npm-url]: http://npmjs.org/package/tailwind-styled-components
 
 ## Install
 
@@ -57,9 +63,9 @@ const Button = tw.button`
 ---
 **Be sure to set the entire class name**
 
-✅  Do `${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}`
+✅ &nbsp;Do `${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}`
 
-❌  Don't `bg-indigo-${p => p.primary ? "600" : "300"}`
+❌ &nbsp;Don't `bg-indigo-${p => p.primary ? "600" : "300"}`
 
 ---
 
