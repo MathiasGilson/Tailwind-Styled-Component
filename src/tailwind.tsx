@@ -33,7 +33,7 @@ function parseTailwindClassNames(template: string[], ...templateElements: any[])
         .replace(/\s{2,}/g, " ") // replace line return by space
 }
 
-type FunctionTemplate = (
+export type FunctionTemplate = (
     template: TemplateStringsArray,
     ...templateElements: any[]
 ) => (props: { children?: any; [props: string]: any }) => any
@@ -52,13 +52,16 @@ const functionTemplate = (Element: any): FunctionTemplate => (template, ...templ
         </Element>
     ))
 
-type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]?: FunctionTemplate
+export type IntrinsicElements = {
+    [key in keyof JSX.IntrinsicElements]: FunctionTemplate
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
-    (acc, domElement) => ({ ...acc, [domElement]: functionTemplate(domElement) }),
-    {}
+    (acc, domElement) => ({
+        ...acc,
+        [domElement]: functionTemplate(domElement)
+    }),
+    {} as IntrinsicElements
 )
 
 const tw = Object.assign((Component: any) => functionTemplate(Component), intrinsicElements)

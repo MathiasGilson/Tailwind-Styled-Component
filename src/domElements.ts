@@ -1,4 +1,4 @@
-export default [
+const elementsArray: (keyof JSX.IntrinsicElements)[] = [
     "a",
     "abbr",
     "address",
@@ -63,7 +63,6 @@ export default [
     "main",
     "map",
     "mark",
-    "marquee",
     "menu",
     "menuitem",
     "meta",
@@ -137,3 +136,5 @@ export default [
     "text",
     "tspan"
 ]
+
+export default elementsArray
