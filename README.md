@@ -146,12 +146,6 @@ import React from "react"
 import tw from "tailwind-styled-components"
 import styled from "styled-components"
 
-const Container = tw.div`
-    flex
-    items-center
-    justify-center
-`
-
 // Create a <Title> react component that renders an <h1> which is
 // indigo and sized at 1.125rem
 const Title = tw.h1`
@@ -161,7 +155,7 @@ const Title = tw.h1`
 
 // Create a <SpecialBlueContainer> react component that renders a <section> with
 // a special blue background color
-const Container = styled.section`
+const SpecialBlueContainer = styled.section`
   background-color: #0366d6;
 `
 
