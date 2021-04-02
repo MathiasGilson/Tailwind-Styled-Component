@@ -17,6 +17,33 @@ npm i -D tailwind-styled-components
 yarn add -D tailwind-styled-components
 ```
 
+*This extension requires TailwindCSS to be installed and configured on your project too. [Install TailwindCSS](https://tailwindcss.com/docs/installation)*
+
+### Configure IntelliSense autocomplete on VSCode
+
+First, install Tailwind CSS IntelliSense VSCode extension
+
+https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
+
+Then add these user settings ([How to edit VSCode settings?](https://code.visualstudio.com/docs/getstarted/settings))
+
+```js
+"tailwindCSS.includeLanguages": {
+    "typescript": "javascript", // if you are using typescript
+    "typescriptreact": "javascript"  // if you are using typescript with react
+},
+"editor.quickSuggestions": {
+    "strings": true // forces VS Code to trigger completions when editing "string" content
+},
+"tailwindCSS.experimental.classRegex": [
+    "tw`([^`]*)", // tw`...`
+    "tw=\"([^\"]*)", // <div tw="..." />
+    "tw={\"([^\"}]*)", // <div tw={"..."} />
+    "tw\\.\\w+`([^`]*)", // tw.xxx`...`
+    "tw\\(.*?\\)`([^`]*)" // tw(Component)`...`
+]
+```
+
 ## Usage
 
 ### Import
