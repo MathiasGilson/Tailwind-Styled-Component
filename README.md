@@ -47,7 +47,7 @@ const Button = tw.div`
 
 ⚡️ Use props like every React Component
 
-🤯 Stop editing 400+ character lines
+🤯 Stop editing 400+ characters lines
 
 🧘 Cleaner code in the render function
 
