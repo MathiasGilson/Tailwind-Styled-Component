@@ -19,7 +19,7 @@ yarn add -D tailwind-styled-components
 
 *This extension requires TailwindCSS to be installed and configured on your project too. [Install TailwindCSS](https://tailwindcss.com/docs/installation)*
 
-### Configure IntelliSense autocomplete on VSCode
+#### [Optional] Configure IntelliSense autocomplete on VSCode
 
 First, install Tailwind CSS IntelliSense VSCode extension
 
@@ -55,7 +55,7 @@ import tw from "tailwind-styled-components"
 
 ### Basic
 
-You can use tailwind-styled-components without using styled components
+Create a Tailwind Styled Component with Tailwind rules that you can render directly
 
 ```js
 const Container = tw.div`
@@ -68,11 +68,19 @@ const Container = tw.div`
 `
 ```
 
+```js
+render(
+    <Container>
+        <div>Use the Container as any other React Component</div>
+    </Container>
+)
+```
+
 Will be rendered as
 
 ```html
 <div class="flex items-center justify-center flex-col w-full bg-indigo-600">
-  <!-- children -->
+  <div>Use the Container as any other React Component</div>
 </div>
 ```
 
@@ -87,14 +95,6 @@ const Button = tw.button`
     ${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}
 `
 ```
----
-**Be sure to set the entire class name**
-
-✅ &nbsp;Do `${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}`
-
-❌ &nbsp;Don't `bg-indigo-${p => p.primary ? "600" : "300"}`
-
----
 
 ```jsx
 <Button primary={true} />
@@ -122,19 +122,35 @@ Will be rendered as
 </button>
 ```
 
+---
+**Be sure to set the entire class name**
+
+✅ &nbsp;Do `${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}`
+
+❌ &nbsp;Don't `bg-indigo-${p => p.primary ? "600" : "300"}`
+
+---
 
 ### Extends
 
 ```js
-const RedContainer = tw(Container)`
-    bg-red-600
+const DefaultContainer = tw.div`
+    flex
+    items-center
+    bg-blue-600
+`
+```
+
+```js
+const RedContainer = tw(DefaultContainer)`
+    bg-red-300
 `
 ```
 
 Will be rendered as
 
 ```html
-<div class="flex items-center justify-center flex-col w-full bg-red-600">
+<div class="flex items-center bg-red-300">
   <!-- children -->
 </div>
 ```
@@ -148,14 +164,16 @@ Extend [styled components](https://github.com/styled-components/styled-component
 
 
 ```js
-const StyledComponentWithCustomJs = styled.div`
+const StyledComponentWithCustomCss = styled.div`
     filter: blur(1px);
 `
 
-const  = tw(StyledComponentWithCustomJs)`
+const  = tw(StyledComponentWithCustomCss)`
    flex
 `
 ```
+
+*Css rule `filter` is not suported by default on TailwindCSS*
 
 Will be rendered as
 
@@ -196,7 +214,9 @@ const Container = tw(SpecialBlueContainer)`
 `
 
 // Use them like any other React component – except they're styled!
-<Container>
-  <Title large={true}>Hello World, this is my first tailwind styled component!</Title>
-</Container>
+render(
+    <Container>
+      <Title large={true}>Hello World, this is my first tailwind styled component!</Title>
+    </Container>
+)
 ```
