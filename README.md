@@ -7,6 +7,50 @@ Create tailwind css react components like styled components with classes name on
 [npm-image]: http://img.shields.io/npm/v/tailwind-styled-components.svg?style=flat-square
 [npm-url]: http://npmjs.org/package/tailwind-styled-components
 
+#### Before 😬
+
+```
+<div className=`flex ${primary ? "bg-indigo-600" : "bg-indigo-300"} inline-flex items-center border border-transparent text-xs font-medium rounded shadow-sm text-white hover:bg-indigo-700 focus:outline-none`>
+```
+
+#### After 🥳
+
+`<Button primary={false}>`
+
+```js
+const Button = tw.div`
+    ${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}
+    
+    flex
+    inline-flex
+    items-center
+    border
+    border-transparent
+    text-xs
+    font-medium
+    rounded
+    shadow-sm
+    text-white
+    
+    hover:bg-indigo-700
+    focus:outline-none
+`
+```
+
+## Features
+
+♻️ Reusable
+
+🧩 Extendable
+
+💅 Compatible with Styled Components
+
+⚡️ Use props like every React Component
+
+🤯 Stop editing 400+ character lines
+
+🧘 Cleaner code in the render function
+
 ## Install
 
 ```bash
