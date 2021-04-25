@@ -33,15 +33,18 @@ function parseTailwindClassNames(template: string[], ...templateElements: any[])
         .replace(/\s{2,}/g, " ") // replace line return by space
 }
 
-export type FunctionTemplate = (
+export type FunctionTemplate<P, E> = (
     template: TemplateStringsArray,
     ...templateElements: any[]
-) => (props: { children?: any; [props: string]: any }) => any
+) => React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<E>>
 
-const functionTemplate = (Element: any): FunctionTemplate => (template, ...templateElements) =>
-    React.forwardRef(({ children, ...props }, ref) => (
+interface ClassNameProp { className?: string }
+type Component<Props extends ClassNameProp> = React.ComponentType<Props>
+
+function functionTemplate<P extends ClassNameProp, E = unknown>(Element: Component<P>): FunctionTemplate<P, E> {
+    return (template, ...templateElements) => React.forwardRef<E, P>(({ children, ...props }, ref) => (
         <Element
-            {...props}
+            {...props as P}
             ref={ref}
             className={parseTailwindClassNames(
                 cleanTemplate(template, props.className),
@@ -51,19 +54,23 @@ const functionTemplate = (Element: any): FunctionTemplate => (template, ...templ
             {children}
         </Element>
     ))
+}
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: FunctionTemplate
+    [key in keyof JSX.IntrinsicElements]: FunctionTemplate<React.ComponentProps<key>, JSX.IntrinsicElements[key]>
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
-    (acc, domElement) => ({
+    (acc, DomElement) => ({
         ...acc,
-        [domElement]: functionTemplate(domElement)
+        [DomElement]: functionTemplate((p) => <DomElement {...p} />),
     }),
     {} as IntrinsicElements
 )
 
-const tw = Object.assign((Component: any) => functionTemplate(Component), intrinsicElements)
+const tw = Object.assign(
+    functionTemplate,
+    intrinsicElements,
+)
 
 export default tw
