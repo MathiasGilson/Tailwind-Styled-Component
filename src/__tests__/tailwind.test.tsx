@@ -2,9 +2,11 @@ import React from 'react'
 import tw from '../tailwind'
 import { render } from '@testing-library/react';
 
-interface TestCompProps extends React.PropsWithChildren<any> {
-  className?: string;
-  someThingElse?: string;
+interface TestCompProps {
+  className?: string
+  someThingElse?: string
+  ref?: unknown
+  children?: React.ReactNode | React.ReactNode[]
 }
 
 describe('tw', () => {
@@ -15,7 +17,7 @@ describe('tw', () => {
   })
 
   it('matches snapshot with function component', () => {
-    const TestComp = ({ className = '', children }: TestCompProps) => <div className={className}>{children}</div>
+    const TestComp: React.FC<TestCompProps> = ({ className, children }) => <div className={className}>{children}</div>
     const TestCompStyled = tw(TestComp)`bg-gray-400`;
     const { asFragment } = render(<TestCompStyled>test</TestCompStyled>);
     expect(asFragment()).toMatchSnapshot();
