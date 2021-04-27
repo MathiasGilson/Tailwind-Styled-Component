@@ -2,7 +2,7 @@
 
 Create tailwind css react components like styled components with classes name on multiple lines
 
-[![NPM version][npm-image]][npm-url] 
+[![NPM version][npm-image]][npm-url]
 
 [npm-image]: http://img.shields.io/npm/v/tailwind-styled-components.svg?style=flat-square
 [npm-url]: http://npmjs.org/package/tailwind-styled-components
@@ -15,11 +15,11 @@ Create tailwind css react components like styled components with classes name on
 
 #### After 🥳
 
-`<Button primary={false}>`
+`<Button $primary={false}>`
 
 ```js
 const Button = tw.div`
-    ${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}
+    ${(p) => (p.$primary ? "bg-indigo-600" : "bg-indigo-300")}
     
     flex
     inline-flex
@@ -92,7 +92,6 @@ Then add these user settings ([How to edit VSCode settings?](https://code.visual
 
 ### Import
 
-
 ```js
 import tw from "tailwind-styled-components"
 ```
@@ -124,49 +123,56 @@ Will be rendered as
 
 ```html
 <div class="flex items-center justify-center flex-col w-full bg-indigo-600">
-  <div>Use the Container as any other React Component</div>
+    <div>Use the Container as any other React Component</div>
 </div>
 ```
 
-
 ### Conditional class names
 
-Set tailwind class conditionaly with the same syntaxt as [styled components](https://styled-components.com/docs/basics#adapting-based-on-props)
+Set tailwind class conditionally with the same syntax as [styled components](https://styled-components.com/docs/basics#adapting-based-on-props)
 
-```js
-const Button = tw.button`
+```ts
+interface ButtonProps {
+   $primary: boolean
+}
+
+const Button = tw.button<ButtonProps>`
     flex
-    ${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}
+    ${(p) => (p.$primary ? "bg-indigo-600" : "bg-indigo-300")}
 `
 ```
 
+*Tailwind Styled Components supports [Transient Props](https://styled-components.com/docs/api#transient-props))*
+*Prefix the props name with a dollar sign ($) to prevent forwarding them to the DOM element*
+
 ```jsx
-<Button primary={true} />
+<Button $primary={true} />
 ```
 
 Will be rendered as
 
 ```html
 <button class="flex bg-indigo-600">
-  <!-- children -->
+    <!-- children -->
 </button>
 ```
 
 and
 
 ```jsx
-<Button primary={false} />
+<Button $primary={false} />
 ```
 
 Will be rendered as
 
 ```html
 <button class="flex bg-indigo-300">
-  <!-- children -->
+    <!-- children -->
 </button>
 ```
 
 ---
+
 **Be sure to set the entire class name**
 
 ✅ &nbsp;Do `${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}`
@@ -195,17 +201,15 @@ Will be rendered as
 
 ```html
 <div class="flex items-center bg-red-300">
-  <!-- children -->
+    <!-- children -->
 </div>
 ```
 
 *Overrides the parent background color class*
 
-
 ### Extends Styled Component
 
 Extend [styled components](https://github.com/styled-components/styled-components)
-
 
 ```js
 const StyledComponentWithCustomCss = styled.div`
@@ -217,39 +221,42 @@ const  = tw(StyledComponentWithCustomCss)`
 `
 ```
 
-*Css rule `filter` is not suported by default on TailwindCSS*
+*Css rule `filter` is not supported by default on TailwindCSS*
 
 Will be rendered as
 
 ```html
 <div class="flex" style="filter: blur(1px);">
-  <!-- children -->
+    <!-- children -->
 </div>
 ```
 
-
 ## Example
 
-```jsx
+```tsx
 import React from "react"
 import tw from "tailwind-styled-components"
 import styled from "styled-components"
 
 // Create a <Title> react component that renders an <h1> which is
 // indigo and sized at 1.125rem
-const Title = tw.h1`
-  ${p => p.large ? "text-lg": "text-base"}
+interface TitleProps {
+    $large: boolean;
+}
+
+const Title = tw.h1<TitleProps>`
+  ${(p) => (p.$large ? "text-lg" : "text-base")}
   text-indigo-500
 `
 
 // Create a <SpecialBlueContainer> react component that renders a <section> with
 // a special blue background color
 const SpecialBlueContainer = styled.section`
-  background-color: #0366d6;
+    background-color: #0366d6;
 `
 
 // Create a <Container> react component that extends the SpecialBlueContainer to render
-// a tailwind <section> with the special blue background and adds the flex classes 
+// a tailwind <section> with the special blue background and adds the flex classes
 const Container = tw(SpecialBlueContainer)`
     flex
     items-center
@@ -260,7 +267,7 @@ const Container = tw(SpecialBlueContainer)`
 // Use them like any other React component – except they're styled!
 render(
     <Container>
-      <Title large={true}>Hello World, this is my first tailwind styled component!</Title>
+        <Title $large={true}>Hello World, this is my first tailwind styled component!</Title>
     </Container>
 )
 ```

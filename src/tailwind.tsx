@@ -33,26 +33,31 @@ function parseTailwindClassNames(template: string[], ...templateElements: (strin
         .replace(/\s{2,}/g, " ") // replace line return by space
 }
 
-export type FunctionTemplate<P, E> = <K extends {} = {}>(
+type TransientProps = Record<`$${string}`, any>
+
+export type FunctionTemplate<P, E> = <K extends TransientProps = {}>(
     template: TemplateStringsArray,
-    ...templateElements: ((props: P & K) => (string | undefined | null))[]
+    ...templateElements: ((props: P & K) => string | undefined | null)[]
 ) => React.ForwardRefExoticComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
 
-interface ClassNameProp { className?: string }
+interface ClassNameProp {
+    className?: string
+}
 function functionTemplate<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
-        ...templateElements: ((props: P & K) => (string | undefined | null))[]
-    ) => React.forwardRef<E, P & K>((props, ref) => (
-        <Element
-            {...props}
-            ref={ref}
-            className={parseTailwindClassNames(
-                cleanTemplate(template, props.className),
-                ...templateElements.map((t) => t(props))
-            )}
-        />
-    ))
+        ...templateElements: ((props: P & K) => string | undefined | null)[]
+    ) =>
+        React.forwardRef<E, P & K>((props, ref) => (
+            <Element
+                {...Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P} //filter props that starts with "$"
+                ref={ref}
+                className={parseTailwindClassNames(
+                    cleanTemplate(template, props.className),
+                    ...templateElements.map((t) => t(props))
+                )}
+            />
+        ))
 }
 
 export type IntrinsicElements = {
@@ -62,14 +67,11 @@ export type IntrinsicElements = {
 const intrinsicElements: IntrinsicElements = domElements.reduce(
     (acc, DomElement) => ({
         ...acc,
-        [DomElement]: functionTemplate((p) => <DomElement {...p} />),
+        [DomElement]: functionTemplate((p) => <DomElement {...p} />)
     }),
     {} as IntrinsicElements
 )
 
-const tw = Object.assign(
-    functionTemplate,
-    intrinsicElements,
-)
+const tw = Object.assign(functionTemplate, intrinsicElements)
 
 export default tw

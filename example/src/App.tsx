@@ -3,8 +3,8 @@ import tw from "../../src"
 
 export default () => {
     return (
-        <Container bold={true}>
-            <Title>Hello </Title>
+        <Container>
+            <Title $bold={false}>Hello</Title>
         </Container>
     )
 }
@@ -12,9 +12,9 @@ export default () => {
 const Container = tw.div`
     flex
     bg-blue-200
-    ${(p) => (p.bold ? "font-bold" : "font-normal")}
 `
 
-const Title = tw.div`
+const Title = tw.div<{ $bold: boolean }>`
     flex
+    ${(p) => (p.$bold ? "font-bold" : "font-normal")}
 `
