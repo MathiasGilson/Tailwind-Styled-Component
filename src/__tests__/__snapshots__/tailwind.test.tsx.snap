@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tw matches snapshot with class component 1`] = `
+<DocumentFragment>
+  <div
+    class="bg-gray-400"
+  >
+    test
+  </div>
+</DocumentFragment>
+`;
+
+exports[`tw matches snapshot with function component 1`] = `
+<DocumentFragment>
+  <div
+    class="bg-gray-400"
+  >
+    test
+  </div>
+</DocumentFragment>
+`;
+
+exports[`tw matches snapshot with intrinsic element 1`] = `
+<DocumentFragment>
+  <div
+    class="bg-gray-400"
+  >
+    test
+  </div>
+</DocumentFragment>
+`;

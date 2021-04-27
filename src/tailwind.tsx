@@ -20,7 +20,7 @@ const cleanTemplate = (template: TemplateStringsArray, inheritedClasses: string 
     ).split(" ")
 }
 
-function parseTailwindClassNames(template: string[], ...templateElements: any[]) {
+function parseTailwindClassNames(template: string[], ...templateElements: (string | undefined | null)[]) {
     return template
         .reduce((sum, n, index) => {
             const templateElement = templateElements[index]
@@ -33,13 +33,17 @@ function parseTailwindClassNames(template: string[], ...templateElements: any[])
         .replace(/\s{2,}/g, " ") // replace line return by space
 }
 
-export type FunctionTemplate = (
+export type FunctionTemplate<P, E> = <K extends {} = {}>(
     template: TemplateStringsArray,
-    ...templateElements: any[]
-) => (props: { children?: any; [props: string]: any }) => any
+    ...templateElements: ((props: P & K) => (string | undefined | null))[]
+) => React.ForwardRefExoticComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
 
-const functionTemplate = (Element: any): FunctionTemplate => (template, ...templateElements) =>
-    React.forwardRef(({ children, ...props }, ref) => (
+interface ClassNameProp { className?: string }
+function functionTemplate<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E> {
+    return <K extends {}>(
+        template: TemplateStringsArray,
+        ...templateElements: ((props: P & K) => (string | undefined | null))[]
+    ) => React.forwardRef<E, P & K>((props, ref) => (
         <Element
             {...props}
             ref={ref}
@@ -47,23 +51,25 @@ const functionTemplate = (Element: any): FunctionTemplate => (template, ...templ
                 cleanTemplate(template, props.className),
                 ...templateElements.map((t) => t(props))
             )}
-        >
-            {children}
-        </Element>
+        />
     ))
+}
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: FunctionTemplate
+    [key in keyof JSX.IntrinsicElements]: FunctionTemplate<JSX.IntrinsicElements[key], key>
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
-    (acc, domElement) => ({
+    (acc, DomElement) => ({
         ...acc,
-        [domElement]: functionTemplate(domElement)
+        [DomElement]: functionTemplate((p) => <DomElement {...p} />),
     }),
     {} as IntrinsicElements
 )
 
-const tw = Object.assign((Component: any) => functionTemplate(Component), intrinsicElements)
+const tw = Object.assign(
+    functionTemplate,
+    intrinsicElements,
+)
 
 export default tw

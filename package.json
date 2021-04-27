@@ -21,6 +21,7 @@
         "build": "tsc",
         "dev": "tsc -w",
         "clean": "rimraf dist",
+        "test": "jest",
         "prepublishOnly": "npm run clean && npm run build"
     },
     "homepage": "https://github.com/MathiasGilson/tailwind-styled-component",
@@ -30,6 +31,8 @@
     "author": "@MathiasGilson",
     "license": "MIT",
     "devDependencies": {
+        "@testing-library/react": "^11.2.6",
+        "@types/jest": "^26.0.22",
         "@types/node": "^14.14.7",
         "@types/react": "^16.9.56",
         "@typescript-eslint/eslint-plugin": "^4.7.0",
@@ -37,8 +40,11 @@
         "eslint": "^7.13.0",
         "eslint-config-prettier": "^6.15.0",
         "eslint-plugin-prettier": "^3.1.4",
+        "jest": "^26.6.3",
         "prettier": "^2.1.2",
+        "react-dom": "^17.0.2",
         "rimraf": "^3.0.2",
+        "ts-jest": "^26.5.5",
         "typescript": "^4.0.5"
     },
     "dependencies": {
