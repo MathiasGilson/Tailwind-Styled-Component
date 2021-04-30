@@ -65,9 +65,9 @@ export type IntrinsicElements = {
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
-    (acc, DomElement) => ({
+    <K extends keyof JSX.IntrinsicElements>(acc: IntrinsicElements, DomElement: K) => ({
         ...acc,
-        [DomElement]: functionTemplate((p) => <DomElement {...p} />)
+        [DomElement]: functionTemplate(DomElement as unknown as React.ComponentType<JSX.IntrinsicElements[K]>)
     }),
     {} as IntrinsicElements
 )
