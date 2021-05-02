@@ -5,7 +5,7 @@ export default () => {
     const [value, setValue] = useState("hello")
 
     const onChange = (e) => {
-        console.log(`input`, e.targe.event)
+        console.log(`input`, e.target.value)
         setValue(e.target.value)
     }
 
