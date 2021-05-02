@@ -61,13 +61,13 @@ function functionTemplate<P extends ClassNameProp, E = any>(Element: React.Compo
 }
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: FunctionTemplate<JSX.IntrinsicElements[key], key>
+    [key in keyof JSX.IntrinsicElements]: FunctionTemplate<JSX.IntrinsicElements[key], any>
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
-    (acc, DomElement) => ({
+    <K extends keyof JSX.IntrinsicElements>(acc: IntrinsicElements, DomElement: K) => ({
         ...acc,
-        [DomElement]: functionTemplate((p) => <DomElement {...p} />)
+        [DomElement]: functionTemplate(DomElement as unknown as React.ComponentType<JSX.IntrinsicElements[K]>)
     }),
     {} as IntrinsicElements
 )

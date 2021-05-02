@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import tw from '../tailwind'
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 
 interface TestCompProps {
   className?: string
@@ -10,6 +10,24 @@ interface TestCompProps {
 }
 
 describe('tw', () => {
+  it('passes ref [Type Test]', async () => {
+    const Div = tw.div`bg-gray-400`;
+    let r: any = undefined;
+    const HasRef = () => {
+      const ref = useRef<HTMLDivElement>();
+      useEffect(() => {
+        r = ref;
+      }, [ref]);
+      return <Div data-testid="mydiv" ref={ref}>ref</Div>
+    }
+    render(<HasRef />);
+    await act(async () => {
+      expect(r).not.toBeUndefined();
+      expect(r.current).not.toBeUndefined();
+      expect(r.current.localName).toBe('div');
+    });
+  })
+
   it('matches snapshot with intrinsic element', () => {
     const Div = tw.div`bg-gray-400`;
     const { asFragment } = render(<Div>test</Div>);

@@ -20,7 +20,7 @@ Create tailwind css react components like styled components with classes name on
 ```js
 const Button = tw.div`
     ${(p) => (p.$primary ? "bg-indigo-600" : "bg-indigo-300")}
-    
+
     flex
     inline-flex
     items-center
@@ -31,7 +31,7 @@ const Button = tw.div`
     rounded
     shadow-sm
     text-white
-    
+
     hover:bg-indigo-700
     focus:outline-none
 `
@@ -175,9 +175,9 @@ Will be rendered as
 
 **Be sure to set the entire class name**
 
-✅ &nbsp;Do `${p => p.primary ? "bg-indigo-600" : "bg-indigo-300"}`
+✅ &nbsp;Do `${p => p.$primary ? "bg-indigo-600" : "bg-indigo-300"}`
 
-❌ &nbsp;Don't `bg-indigo-${p => p.primary ? "600" : "300"}`
+❌ &nbsp;Don't `bg-indigo-${p => p.$primary ? "600" : "300"}`
 
 ---
 
