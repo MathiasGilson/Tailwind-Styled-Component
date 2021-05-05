@@ -140,7 +140,8 @@ const Button = tw.button<ButtonProps>`
 `
 ```
 
-*Tailwind Styled Components supports [Transient Props](https://styled-components.com/docs/api#transient-props))*
+*Tailwind Styled Components supports [Transient Props](https://styled-components.com/docs/api#transient-props)*
+
 *Prefix the props name with a dollar sign ($) to prevent forwarding them to the DOM element*
 
 ```jsx
