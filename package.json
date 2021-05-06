@@ -1,6 +1,6 @@
 {
     "name": "tailwind-styled-components",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "keywords": [
         "react",
         "css-in-js",
@@ -49,7 +49,6 @@
     },
     "dependencies": {
         "react": "^17.0.1",
-        "tailwind-styled-components": "^1.0.5",
         "tailwindcss-classnames": "^1.9.0"
     }
 }
