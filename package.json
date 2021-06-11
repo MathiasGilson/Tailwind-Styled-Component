@@ -49,6 +49,6 @@
     },
     "dependencies": {
         "react": "^17.0.1",
-        "tailwindcss-classnames": "^1.9.0"
+        "tailwindcss-classnames": "^2.1.2"
     }
 }
