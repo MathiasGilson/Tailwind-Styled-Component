@@ -51,4 +51,34 @@ describe('tw', () => {
     const { asFragment } = render(<TestCompStyled>test</TestCompStyled>);
     expect(asFragment()).toMatchSnapshot();
   })
+
+  it("matches snapshot with two properties", () => {
+      const Div = tw.div<{ $test1?: string; $test2?: string }>`
+      bg-gray-500
+      p-10
+      `
+
+      const { asFragment } = render(
+          <Div $test1="true" $test2="true">
+              test
+          </Div>
+      )
+
+      expect(asFragment()).toMatchSnapshot()
+  })
+
+  it("matches snapshot with two dynamic properties", () => {
+      const Div = tw.div<{ $test1?: string; $test2?: string }>`
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p) => (p.$test2 === "true" ? `p-10` : ``)}
+      `
+
+      const { asFragment } = render(
+          <Div $test1="true" $test2="true">
+              test
+          </Div>
+      )
+
+      expect(asFragment()).toMatchSnapshot()
+  })
 })

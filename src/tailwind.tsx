@@ -22,13 +22,9 @@ const cleanTemplate = (template: TemplateStringsArray, inheritedClasses: string 
 
 function parseTailwindClassNames(template: string[], ...templateElements: (string | undefined | null)[]) {
     return template
-        .reduce((sum, n, index) => {
-            const templateElement = templateElements[index]
-            if (typeof templateElement === "string") {
-                return `${sum} ${n} ${templateElement}`
-            }
+        .reduce((sum, n) => {
             return `${sum} ${n}`
-        }, "")
+        }, templateElements.join(' '))
         .trim()
         .replace(/\s{2,}/g, " ") // replace line return by space
 }

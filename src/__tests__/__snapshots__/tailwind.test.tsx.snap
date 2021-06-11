@@ -29,3 +29,23 @@ exports[`tw matches snapshot with intrinsic element 1`] = `
   </div>
 </DocumentFragment>
 `;
+
+exports[`tw matches snapshot with two dynamic properties 1`] = `
+<DocumentFragment>
+  <div
+    class="bg-gray-500 p-10"
+  >
+    test
+  </div>
+</DocumentFragment>
+`;
+
+exports[`tw matches snapshot with two properties 1`] = `
+<DocumentFragment>
+  <div
+    class="bg-gray-500 p-10"
+  >
+    test
+  </div>
+</DocumentFragment>
+`;
