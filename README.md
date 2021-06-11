@@ -186,7 +186,6 @@ Will be rendered as
 const DefaultContainer = tw.div`
     flex
     items-center
-    bg-blue-600
 `
 ```
 
@@ -204,7 +203,7 @@ Will be rendered as
 </div>
 ```
 
-*Overrides the parent background color class*
+*Careful it does not overrides parent classes*
 
 ### Extends Styled Component
 
