@@ -63,7 +63,7 @@ Using [yarn](https://yarnpkg.com)
 yarn add -D tailwind-styled-components
 ```
 
-*This extension requires TailwindCSS to be installed and configured on your project too. [Install TailwindCSS](https://tailwindcss.com/docs/installation)*
+*⚠️ This extension requires TailwindCSS to be installed and configured on your project too. [Install TailwindCSS](https://tailwindcss.com/docs/installation)*
 
 #### [Optional] Configure IntelliSense autocomplete on VSCode
 
