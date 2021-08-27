@@ -53,11 +53,13 @@ const Button = tw.div`
 
 ## Install
 
+Using [npm](http://npmjs.org/package/tailwind-styled-components)
 ```bash
-# using npm
 npm i -D tailwind-styled-components
+```
 
-# using yarn
+Using [yarn](https://yarnpkg.com)
+```
 yarn add -D tailwind-styled-components
 ```
 
