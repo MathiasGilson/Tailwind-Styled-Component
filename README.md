@@ -83,7 +83,7 @@ Then add these user settings ([How to edit VSCode settings?](https://code.visual
 },
 "tailwindCSS.experimental.classRegex": [
     "tw`([^`]*)", // tw`...`
-    "tw\\..+`([^`]*)", // tw.xxx<xxx>`...`
+    "tw\\.[^`]+`([^`]*)`", // tw.xxx<xxx>`...`
     "tw\\(.*?\\).*?`([^`]*)" // tw(Component)<xxx>`...`
 ]
 ```
