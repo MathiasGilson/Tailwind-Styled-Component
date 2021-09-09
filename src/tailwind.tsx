@@ -36,24 +36,27 @@ export type FunctionTemplate<P, E> = <K extends TransientProps = {}>(
     ...templateElements: ((props: P & K) => string | undefined | null)[]
 ) => React.ForwardRefExoticComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
 
-interface ClassNameProp {
+interface FunctionTemplateProp {
+    as?: keyof JSX.IntrinsicElements,
     className?: string
 }
-function functionTemplate<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E> {
+
+function functionTemplate<P extends FunctionTemplateProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) =>
-        React.forwardRef<E, P & K>((props, ref) => (
-            <Element
-                {...Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P} // filter out props that starts with "$"
-                ref={ref}
-                className={parseTailwindClassNames(
-                    cleanTemplate(template, props.className),
-                    ...templateElements.map((t) => t(props))
-                )}
-            />
-        ))
+        React.forwardRef<E, P & K>(({ as = Element, children, ...rest }, ref) => {
+            const props = {
+                ...Object.fromEntries(Object.entries(rest).filter(([key]) => key.charAt(0) !== "$")) as P,
+                ref,
+                className: parseTailwindClassNames(
+                    cleanTemplate(template, rest.className),
+                    ...templateElements.map((t) => t(rest as P & K))
+                )
+            }
+            return React.createElement(as, props, children)
+        })
 }
 
 export type IntrinsicElements = {
