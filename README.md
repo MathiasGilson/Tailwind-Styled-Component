@@ -53,15 +53,17 @@ const Button = tw.div`
 
 ## Install
 
+Using [npm](http://npmjs.org/package/tailwind-styled-components)
 ```bash
-# using npm
 npm i -D tailwind-styled-components
+```
 
-# using yarn
+Using [yarn](https://yarnpkg.com)
+```
 yarn add -D tailwind-styled-components
 ```
 
-*This extension requires TailwindCSS to be installed and configured on your project too. [Install TailwindCSS](https://tailwindcss.com/docs/installation)*
+*⚠️ This extension requires TailwindCSS to be installed and configured on your project too. [Install TailwindCSS](https://tailwindcss.com/docs/installation)*
 
 #### [Optional] Configure IntelliSense autocomplete on VSCode
 
@@ -81,7 +83,7 @@ Then add these user settings ([How to edit VSCode settings?](https://code.visual
 },
 "tailwindCSS.experimental.classRegex": [
     "tw`([^`]*)", // tw`...`
-    "tw\\..+`([^`]*)", // tw.xxx<xxx>`...`
+    "tw\\.[^`]+`([^`]*)`", // tw.xxx<xxx>`...`
     "tw\\(.*?\\).*?`([^`]*)" // tw(Component)<xxx>`...`
 ]
 ```
