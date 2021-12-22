@@ -26,9 +26,9 @@ export default () => {
                 <pre>
                     Red Container
                     <br />
-                    I have following classes: bg-red-300 flex items-center
+                    I add the following class: bg-red-300
                     <br />
-                    but I should have: bg-red-300 flex items-center
+                    and I should have the classes: bg-red-300 flex items-center
                 </pre>
             </RedContainer>
         </Container>
