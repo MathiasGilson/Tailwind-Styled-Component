@@ -22,8 +22,8 @@ const cleanTemplate = (template: TemplateStringsArray, inheritedClasses: string 
 
 function parseTailwindClassNames(template: string[], ...templateElements: (string | undefined | null)[]) {
     return template
-        .reduce((sum, n) => {
-            return `${sum} ${n}`
+        .reduce((classes, c) => {
+            return `${classes} ${c}` // set tailwind classes names on one line
         }, templateElements.join(' '))
         .trim()
         .replace(/\s{2,}/g, " ") // replace line return by space
@@ -39,21 +39,27 @@ export type FunctionTemplate<P, E> = <K extends TransientProps = {}>(
 interface ClassNameProp {
     className?: string
 }
+
 function functionTemplate<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) =>
-        React.forwardRef<E, P & K>((props, ref) => (
-            <Element
-                {...Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P} // filter out props that starts with "$"
-                ref={ref}
-                className={parseTailwindClassNames(
-                    cleanTemplate(template, props.className),
-                    ...templateElements.map((t) => t(props))
-                )}
-            />
-        ))
+        {
+            return React.forwardRef<E, P & K>((props, ref) => (
+                <Element
+                    // forward props
+                    {...Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P} // filter out props that starts with "$"
+
+                    // forward ref
+                    ref={ref}
+                    // set class names
+                    className={parseTailwindClassNames(
+                        cleanTemplate(template, props.className),
+                        ...templateElements.map((t) => t(props))
+                    )} />
+            ))
+        }
 }
 
 export type IntrinsicElements = {

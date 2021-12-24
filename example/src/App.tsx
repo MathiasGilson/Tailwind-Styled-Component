@@ -16,13 +16,13 @@ export default () => {
             </Title>
             <Input onChange={onChange} onFocus={() => console.log(`focus`)} value={value} />
 
-            <DefaultContainer>
+            <DefaultContainer $bold={false}>
                 <pre>
                     DefaultContainer
                     <br />I have following classes: flex items-center
                 </pre>
             </DefaultContainer>
-            <RedContainer>
+            <RedContainer $bold={true}>
                 <pre>
                     Red Container
                     <br />
@@ -41,7 +41,9 @@ const Container = tw.div`
     flex
 `
 
-const DefaultContainer = tw.div`
+const DefaultContainer = tw.div<{ $bold?: boolean }>`
+    ${(p) => (p.$bold ? "font-bold" : "")}
+
     flex
     items-center
 `
