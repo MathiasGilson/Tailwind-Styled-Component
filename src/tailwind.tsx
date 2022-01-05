@@ -2,17 +2,18 @@ import React from "react"
 import domElements from "./domElements"
 import { classnames } from "tailwindcss-classnames"
 
-const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
+export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
-        (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove falsey values e.g '', null, undefined
+        (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove falsey values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
         [] as (string | undefined | null)[]
     )
 }
 
-const cleanTemplate = (template: (string | undefined | null)[], inheritedClasses: string = "") => {
+export const cleanTemplate = (template: (string | undefined | null)[], inheritedClasses: string = "") => {
     const newClasses: string[] = template
         .join(" ")
         .trim()
+        // .replace(/\n/g, ' ')     // replace newline with space
         .replace(/\s{2,}/g, " ") // replace line return by space
         .split(" ")
         .filter((c) => c !== ",") // remove comma introduced by template to string
@@ -24,7 +25,7 @@ const cleanTemplate = (template: (string | undefined | null)[], inheritedClasses
             .concat(newClasses) // add new classes
             .filter((c: string) => c !== " ") // remove empty classes
             .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
-    )
+    ) as string // to remove "TAILWIND_STRING" type
 }
 
 // function parseTailwindClassNames(template: string[], ...templateElements: (string | undefined | null)[]) {
