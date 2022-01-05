@@ -2,6 +2,13 @@ import React from "react"
 import domElements from "./domElements"
 import { classnames } from "tailwindcss-classnames"
 
+const mergeTemplateStringArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
+    return template.reduce(
+        (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove falsey values
+        [] as (string | undefined | null)[]
+    )
+}
+
 const cleanTemplate = (template: TemplateStringsArray, inheritedClasses: string = "") => {
     const newClasses: string[] = template
         .toString()
@@ -24,7 +31,7 @@ function parseTailwindClassNames(template: string[], ...templateElements: (strin
     return template
         .reduce((classes, c) => {
             return `${classes} ${c}` // set tailwind classes names on one line
-        }, templateElements.join(' '))
+        }, templateElements.join(" "))
         .trim()
         .replace(/\s{2,}/g, " ") // replace line return by space
 }
@@ -44,22 +51,21 @@ function functionTemplate<P extends ClassNameProp, E = any>(Element: React.Compo
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
-    ) =>
-        {
-            return React.forwardRef<E, P & K>((props, ref) => (
-                <Element
-                    // forward props
-                    {...Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P} // filter out props that starts with "$"
-
-                    // forward ref
-                    ref={ref}
-                    // set class names
-                    className={parseTailwindClassNames(
-                        cleanTemplate(template, props.className),
-                        ...templateElements.map((t) => t(props))
-                    )} />
-            ))
-        }
+    ) => {
+        return React.forwardRef<E, P & K>((props, ref) => (
+            <Element
+                // forward props
+                {...(Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P)} // filter out props that starts with "$"
+                // forward ref
+                ref={ref}
+                // set class names
+                className={parseTailwindClassNames(
+                    cleanTemplate(template, props.className),
+                    ...templateElements.map((t) => t(props))
+                )}
+            />
+        ))
+    }
 }
 
 export type IntrinsicElements = {
