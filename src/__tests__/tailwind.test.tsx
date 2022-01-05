@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react"
-import tw from "../tailwind"
+import tw, { mergeArrays, cleanTemplate } from "../tailwind"
 import { act, render } from "@testing-library/react"
 
 interface TestCompProps {
@@ -8,6 +8,37 @@ interface TestCompProps {
     ref?: unknown
     children?: React.ReactNode | React.ReactNode[]
 }
+
+describe("mergeArrays", () => {
+    it("should merge arrays of same size in correct order", () => {
+        const arr1 = ["1", "3", "5", "7", "9"]
+        const arr2 = ["2", "4", "6", "8", "10"]
+        const result = mergeArrays(arr1 as unknown as TemplateStringsArray, arr2)
+        expect(result).toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
+    })
+
+    it("should merge arrays of different size in correct order", () => {
+        const arr1 = ["1", "3", "5", "7", "9"]
+        const arr2 = ["2", "4", "6", "8"]
+        const result = mergeArrays(arr1 as unknown as TemplateStringsArray, arr2)
+        expect(result).toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9"])
+    })
+})
+
+describe("cleanTemplate", () => {
+    it("should return a class string", () => {
+        const template = [
+            `fixed
+    h-full
+    w-full
+    bg-green-500
+    `
+        ]
+        const result = cleanTemplate(template)
+
+        expect(result).toEqual("fixed h-full w-full bg-green-500")
+    })
+})
 
 describe("tw", () => {
     it("passes ref [Type Test]", async () => {
