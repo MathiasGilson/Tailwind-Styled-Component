@@ -13,7 +13,7 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
     const newClasses: string[] = template
         .join(" ")
         .trim()
-        // .replace(/\n/g, ' ')     // replace newline with space
+        .replace(/\n/g, ' ')     // replace newline with space
         .replace(/\s{2,}/g, " ") // replace line return by space
         .split(" ")
         .filter((c) => c !== ",") // remove comma introduced by template to string
