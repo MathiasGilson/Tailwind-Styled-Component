@@ -11,7 +11,7 @@ const mergeArrays = (template: TemplateStringsArray, templateElements: (string |
 
 const cleanTemplate = (template: (string | undefined | null)[], inheritedClasses: string = "") => {
     const newClasses: string[] = template
-        .toString()
+        .join(" ")
         .trim()
         .replace(/\s{2,}/g, " ") // replace line return by space
         .split(" ")
