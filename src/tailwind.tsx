@@ -2,7 +2,7 @@ import React from "react"
 import domElements from "./domElements"
 import { classnames } from "tailwindcss-classnames"
 
-const mergeTemplateStringArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
+const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
         (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove falsey values
         [] as (string | undefined | null)[]
