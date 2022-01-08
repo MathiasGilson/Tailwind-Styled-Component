@@ -242,7 +242,7 @@
         "affectsGlobalScope": false
       },
       "../src/tailwind.tsx": {
-        "version": "71960c19f904df9fae27c591e9ab34bba2a85d4d3b94191bf294e38045fb23f1",
+        "version": "ba2159410f3f9fc7e84fe812e3a1141b33009d8bca615a4a297fde35e4703f32",
         "signature": "f313bd82136002743f9b4475488e7675ca92d0fd24bfa9e0555a6eb4f20c4968",
         "affectsGlobalScope": false
       },

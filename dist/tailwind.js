@@ -15,6 +15,7 @@ const cleanTemplate = (template, inheritedClasses = "") => {
     const newClasses = template
         .join(" ")
         .trim()
+        .replace(/\n/g, ' ')
         .replace(/\s{2,}/g, " ")
         .split(" ")
         .filter((c) => c !== ",");
@@ -27,7 +28,14 @@ const cleanTemplate = (template, inheritedClasses = "") => {
 exports.cleanTemplate = cleanTemplate;
 function functionTemplate(Element) {
     return (template, ...templateElements) => {
-        return react_1.default.forwardRef((props, ref) => (react_1.default.createElement(Element, Object.assign({}, Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")), { ref: ref, className: exports.cleanTemplate(exports.mergeArrays(template, templateElements.map((t) => t(props))), props.className) }))));
+        const result = react_1.default.forwardRef((props, ref) => (react_1.default.createElement(Element, Object.assign({}, Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")), { ref: ref, className: exports.cleanTemplate(exports.mergeArrays(template, templateElements.map((t) => t(props))), props.className) }))));
+        if (typeof (Element) !== 'string') {
+            result.displayName = Element.displayName;
+        }
+        else {
+            result.displayName = 'tw.' + Element;
+        }
+        return result;
     };
 }
 const intrinsicElements = domElements_1.default.reduce((acc, DomElement) => ({
