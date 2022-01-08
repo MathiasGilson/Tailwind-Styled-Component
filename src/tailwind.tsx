@@ -71,9 +71,9 @@ function functionTemplate<P extends ClassNameProp, E = any>(Element: React.Compo
         ))
         // This enables the react tree to show a name in devtools, much better debugging experience
         if (typeof(Element) !== 'string') {
-            result.displayName = Element.displayName
+            result.displayName = Element.displayName || Element.name
         } else {
-            result.displayName = 'tw.'+Element
+            result.displayName = 'tw.'+ Element
         }
         return result;
     }

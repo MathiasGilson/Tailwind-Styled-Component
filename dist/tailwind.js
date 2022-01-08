@@ -30,7 +30,7 @@ function functionTemplate(Element) {
     return (template, ...templateElements) => {
         const result = react_1.default.forwardRef((props, ref) => (react_1.default.createElement(Element, Object.assign({}, Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")), { ref: ref, className: exports.cleanTemplate(exports.mergeArrays(template, templateElements.map((t) => t(props))), props.className) }))));
         if (typeof (Element) !== 'string') {
-            result.displayName = Element.displayName;
+            result.displayName = Element.displayName || Element.name;
         }
         else {
             result.displayName = 'tw.' + Element;
