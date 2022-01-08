@@ -2,6 +2,8 @@ import React from "react"
 import domElements from "./domElements"
 import { classnames } from "tailwindcss-classnames"
 
+const isTwElement = Symbol("is tailwind-styled-component")
+
 export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
         (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove falsey values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
@@ -13,7 +15,7 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
     const newClasses: string[] = template
         .join(" ")
         .trim()
-        .replace(/\n/g, ' ')     // replace newline with space
+        .replace(/\n/g, " ") // replace newline with space
         .replace(/\s{2,}/g, " ") // replace line return by space
         .split(" ")
         .filter((c) => c !== ",") // remove comma introduced by template to string
@@ -47,35 +49,44 @@ export type FunctionTemplate<P, E> = <K extends TransientProps = {}>(
 interface ClassNameProp {
     className?: string
 }
+const filterProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
 function functionTemplate<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) => {
-        const result = React.forwardRef<E, P & K>((props, ref) => (
-            <Element
-                // forward props
-                {...(Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P)} // filter out props that starts with "$"
-                // forward ref
-                ref={ref}
-                // set class names
-                className={cleanTemplate(
-                    mergeArrays(
-                        template,
-                        templateElements.map((t) => t(props))
-                    ),
-                    props.className
-                )}
-            />
-        ))
+        const result = React.forwardRef<E, P & K>((props, ref) => {
+            // filter out props that starts with "$" except when styling a tailwind-styled-component
+            const filteredProps: P = Element[isTwElement]
+                ? props
+                : (Object.fromEntries(Object.entries(props).filter(filterProps)) as P)
+            return (
+                <Element
+                    // forward props
+                    {...filteredProps}
+                    // forward ref
+                    ref={ref}
+                    // set class names
+                    className={cleanTemplate(
+                        mergeArrays(
+                            template,
+                            templateElements.map((t) => t(props))
+                        ),
+                        props.className
+                    )}
+                />
+            )
+        })
+        // symbol identifier for detecting tailwind-styled-components
+        result[isTwElement] = true
         // This enables the react tree to show a name in devtools, much better debugging experience
-        if (typeof(Element) !== 'string') {
+        if (typeof Element !== "string") {
             result.displayName = Element.displayName || Element.name
         } else {
-            result.displayName = 'tw.'+ Element
+            result.displayName = "tw." + Element
         }
-        return result;
+        return result
     }
 }
 
