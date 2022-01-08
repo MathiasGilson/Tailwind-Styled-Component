@@ -53,7 +53,7 @@ function functionTemplate<P extends ClassNameProp, E = any>(Element: React.Compo
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) => {
-        return React.forwardRef<E, P & K>((props, ref) => (
+        const result = React.forwardRef<E, P & K>((props, ref) => (
             <Element
                 // forward props
                 {...(Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P)} // filter out props that starts with "$"
@@ -69,6 +69,13 @@ function functionTemplate<P extends ClassNameProp, E = any>(Element: React.Compo
                 )}
             />
         ))
+        // This enables the react tree to show a name in devtools, much better debugging experience
+        if (typeof(Element) !== 'string') {
+            result.displayName = Element.displayName
+        } else {
+            result.displayName = 'tw.'+Element
+        }
+        return result;
     }
 }
 
