@@ -7,6 +7,9 @@ interface ClassNameProp {
     className?: string;
 }
 declare function functionTemplate<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E>;
+declare function functionTemplate<P extends ClassNameProp & {
+    as: keyof JSX.IntrinsicElements | React.ComponentType<P2>;
+}, E = any, P2 = any>(Element: React.ComponentType<P>): FunctionTemplate<P2, E>;
 export declare type IntrinsicElements = {
     [key in keyof JSX.IntrinsicElements]: FunctionTemplate<JSX.IntrinsicElements[key], any>;
 };

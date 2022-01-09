@@ -11,7 +11,7 @@ export default () => {
 
     return (
         <Container>
-            <Title $bold={false} $large={false}>
+            <Title $bold={false} $large={true} as={RedContainer}>
                 Hello
             </Title>
             <Input onChange={onChange} onFocus={() => console.log(`focus`)} value={value} />
@@ -22,7 +22,7 @@ export default () => {
                     <br />I have following classes: flex items-center
                 </pre>
             </DefaultContainer>
-            <RedContainer $bold={true}>
+            <RedContainer $bold={true} as={Title} $large={true}>
                 <pre>
                     Red Container
                     <br />
@@ -57,4 +57,5 @@ const Title = tw.div<{ $bold: boolean; $large?: boolean }>`
     
     ${(p) => (p.$bold ? "font-bold" : "font-normal")}
     ${(p) => (p.$large ? "text-xl" : "")}
+
 `

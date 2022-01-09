@@ -7,6 +7,7 @@ exports.cleanTemplate = exports.mergeArrays = void 0;
 const react_1 = __importDefault(require("react"));
 const domElements_1 = __importDefault(require("./domElements"));
 const tailwindcss_classnames_1 = require("tailwindcss-classnames");
+const isTwElement = Symbol("is tailwind-styled-component");
 const mergeArrays = (template, templateElements) => {
     return template.reduce((acc, c, i) => acc.concat(c || [], templateElements[i] || []), []);
 };
@@ -15,25 +16,33 @@ const cleanTemplate = (template, inheritedClasses = "") => {
     const newClasses = template
         .join(" ")
         .trim()
-        .replace(/\n/g, ' ')
+        .replace(/\n/g, " ")
         .replace(/\s{2,}/g, " ")
         .split(" ")
         .filter((c) => c !== ",");
     const inheritedClassesArray = inheritedClasses ? inheritedClasses.split(" ") : [];
-    return tailwindcss_classnames_1.classnames(...inheritedClassesArray
+    return (0, tailwindcss_classnames_1.classnames)(...inheritedClassesArray
         .concat(newClasses)
         .filter((c) => c !== " ")
         .filter((v, i, arr) => arr.indexOf(v) === i));
 };
 exports.cleanTemplate = cleanTemplate;
+const filterProps = ([key]) => key.charAt(0) !== "$" && key !== "as";
 function functionTemplate(Element) {
     return (template, ...templateElements) => {
-        const result = react_1.default.forwardRef((props, ref) => (react_1.default.createElement(Element, Object.assign({}, Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")), { ref: ref, className: exports.cleanTemplate(exports.mergeArrays(template, templateElements.map((t) => t(props))), props.className) }))));
-        if (typeof (Element) !== 'string') {
+        const result = react_1.default.forwardRef((props, ref) => {
+            const FinalElement = props.as ? props.as : Element;
+            const filteredProps = Element[isTwElement]
+                ? props
+                : Object.fromEntries(Object.entries(props).filter(filterProps));
+            return (react_1.default.createElement(FinalElement, { ...filteredProps, ref: ref, className: (0, exports.cleanTemplate)((0, exports.mergeArrays)(template, templateElements.map((t) => t(props))), props.className) }));
+        });
+        result[isTwElement] = true;
+        if (typeof Element !== "string") {
             result.displayName = Element.displayName || Element.name;
         }
         else {
-            result.displayName = 'tw.' + Element;
+            result.displayName = "tw." + Element;
         }
         return result;
     };
