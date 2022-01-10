@@ -21,7 +21,7 @@ const dfsdfe3b = <Div as="a" href="/" />
 
 const dfsdfe3c = <Div as={A} href="/" />
 
-const C1 = (_props: { className: string; css?: boolean }) => <div />
+const C1 = (_props: { className: string; booleanProp?: boolean }) => <div />
 const C2 = () => <div />
 
 const T = tw.div``
@@ -36,8 +36,8 @@ const test4 = <NoProps as="a" href="" />
 const test5 = <T as="div" onChange={() => {}} />
 const test6 = <HasClassName as="div" onChange={() => {}} className="" />
 // @ts-expect-error
-const test12 = <HasClassName as="div" onChange={() => {}} className="" css="true" />
-const test13 = <HasClassName as="div" onChange={() => {}} className="" css={true} />
+const test12 = <HasClassName as="div" onChange={() => {}} className="" booleanProp="true" />
+const test13 = <HasClassName as="div" onChange={() => {}} className="" booleanProp={true} />
 const test8 = <NoProps as="div" onChange={() => {}} />
 // @ts-expect-error
 const test7 = <HasClassName onChange={() => {}} />
@@ -54,7 +54,7 @@ const sfdkj3 = (
     <T
         as={C1}
         className=""
-        css={true}
+        booleanProp={true}
         // onChange= () => {}}
     />
 )
