@@ -22,6 +22,7 @@
         "dev": "tsc -w",
         "clean": "rimraf dist",
         "test": "jest",
+        "posttest": "tsc -p ./src/typing-tests/tsconfig.json",
         "prepublishOnly": "npm run clean && npm run build"
     },
     "homepage": "https://github.com/MathiasGilson/tailwind-styled-component",

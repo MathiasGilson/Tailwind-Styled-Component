@@ -7,7 +7,7 @@ exports.cleanTemplate = exports.mergeArrays = void 0;
 const react_1 = __importDefault(require("react"));
 const domElements_1 = __importDefault(require("./domElements"));
 const tailwindcss_classnames_1 = require("tailwindcss-classnames");
-const isTwElement = Symbol("is tailwind-styled-component");
+const isTwElement = Symbol("isTwElement?");
 const mergeArrays = (template, templateElements) => {
     return template.reduce((acc, c, i) => acc.concat(c || [], templateElements[i] || []), []);
 };
@@ -21,20 +21,20 @@ const cleanTemplate = (template, inheritedClasses = "") => {
         .split(" ")
         .filter((c) => c !== ",");
     const inheritedClassesArray = inheritedClasses ? inheritedClasses.split(" ") : [];
-    return (0, tailwindcss_classnames_1.classnames)(...inheritedClassesArray
-        .concat(newClasses)
+    return (0, tailwindcss_classnames_1.classnames)(...newClasses
+        .concat(inheritedClassesArray)
         .filter((c) => c !== " ")
         .filter((v, i, arr) => arr.indexOf(v) === i));
 };
 exports.cleanTemplate = cleanTemplate;
-const filterProps = ([key]) => key.charAt(0) !== "$" && key !== "as";
+const filter$FromProps = ([key]) => key.charAt(0) !== "$" && key !== "as";
 function functionTemplate(Element) {
     return (template, ...templateElements) => {
         const result = react_1.default.forwardRef((props, ref) => {
-            const FinalElement = props.as ? props.as : Element;
-            const filteredProps = Element[isTwElement]
+            const FinalElement = props.as || Element;
+            const filteredProps = FinalElement[isTwElement]
                 ? props
-                : Object.fromEntries(Object.entries(props).filter(filterProps));
+                : Object.fromEntries(Object.entries(props).filter(filter$FromProps));
             return (react_1.default.createElement(FinalElement, { ...filteredProps, ref: ref, className: (0, exports.cleanTemplate)((0, exports.mergeArrays)(template, templateElements.map((t) => t(props))), props.className) }));
         });
         result[isTwElement] = true;

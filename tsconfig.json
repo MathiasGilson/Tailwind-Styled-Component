@@ -30,5 +30,5 @@
         "incremental": true
     },
     "include": ["src"],
-    "exclude": ["node_modules", "**/__tests__/*", "coverage"]
+    "exclude": ["node_modules", "**/__tests__/*", "coverage", "**/typing-tests/*"]
 }
