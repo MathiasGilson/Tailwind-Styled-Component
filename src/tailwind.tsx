@@ -106,20 +106,23 @@ interface ClassNameProp {
 interface AsProp {
     as?: keyof JSX.IntrinsicElements | React.ComponentType<any>
 }
-const filter$FromProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$" && key !== "as"
+const filter$FromProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
-function functionTemplate<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): FunctionTemplate<P, E> {
+function functionTemplate<P extends ClassNameProp & AsProp, E = any>(
+    Element: React.ComponentType<P>
+): FunctionTemplate<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) => {
-        const result: any = React.forwardRef<E, P & K>((props, ref) => {
+        const result: any = React.forwardRef<E, P & K>(({ as, ...props }, ref) => {
             // change Element when `as` prop detected
-            const FinalElement = (props as any).as || Element
+            const FinalElement = as || Element
             // filter out props that starts with "$" and `as` props except when styling a tailwind-styled-component
-            const filteredProps: Omit<P, "as"> = FinalElement[isTwElement]
-                ? props
-                : (Object.fromEntries(Object.entries(props).filter(filter$FromProps)) as Omit<P, "as">)
+            const filteredProps: Omit<P, "as"> =
+                FinalElement[isTwElement] === true
+                    ? props
+                    : (Object.fromEntries(Object.entries(props).filter(filter$FromProps)) as Omit<P, "as">)
             return (
                 <FinalElement
                     // forward props
@@ -130,7 +133,7 @@ function functionTemplate<P extends ClassNameProp, E = any>(Element: React.Compo
                     className={cleanTemplate(
                         mergeArrays(
                             template,
-                            templateElements.map((t) => t(props as P & K))
+                            templateElements.map((t) => t({ ...props, as } as P & K))
                         ),
                         props.className
                     )}
