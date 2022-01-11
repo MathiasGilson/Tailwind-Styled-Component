@@ -2,11 +2,19 @@ import React from "react"
 import domElements from "./domElements"
 import { classnames } from "tailwindcss-classnames"
 
-const cleanTemplate = (template: TemplateStringsArray, inheritedClasses: string = "") => {
+export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
+    return template.reduce(
+        (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove falsey values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
+        [] as (string | undefined | null)[]
+    )
+}
+
+export const cleanTemplate = (template: (string | undefined | null)[], inheritedClasses: string = "") => {
     const newClasses: string[] = template
-        .toString()
+        .join(" ")
         .trim()
-        .replace(/\s{2,}/g, " ")
+        .replace(/\n/g, ' ')     // replace newline with space
+        .replace(/\s{2,}/g, " ") // replace line return by space
         .split(" ")
         .filter((c) => c !== ",") // remove comma introduced by template to string
 
@@ -17,17 +25,17 @@ const cleanTemplate = (template: TemplateStringsArray, inheritedClasses: string 
             .concat(newClasses) // add new classes
             .filter((c: string) => c !== " ") // remove empty classes
             .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
-    ).split(" ")
+    ) as string // to remove "TAILWIND_STRING" type
 }
 
-function parseTailwindClassNames(template: string[], ...templateElements: (string | undefined | null)[]) {
-    return template
-        .reduce((classes, c) => {
-            return `${classes} ${c}` // set tailwind classes names on one line
-        }, templateElements.join(' '))
-        .trim()
-        .replace(/\s{2,}/g, " ") // replace line return by space
-}
+// function parseTailwindClassNames(template: string[], ...templateElements: (string | undefined | null)[]) {
+//     return template
+//         .reduce((classes, c) => {
+//             return `${classes} ${c}` // set tailwind classes names on one line
+//         }, templateElements.join(" "))
+//         .trim()
+//         .replace(/\s{2,}/g, " ") // replace line return by space
+// }
 
 type TransientProps = Record<`$${string}`, any>
 
@@ -44,22 +52,24 @@ function functionTemplate<P extends ClassNameProp, E = any>(Element: React.Compo
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
-    ) =>
-        {
-            return React.forwardRef<E, P & K>((props, ref) => (
-                <Element
-                    // forward props
-                    {...Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P} // filter out props that starts with "$"
-
-                    // forward ref
-                    ref={ref}
-                    // set class names
-                    className={parseTailwindClassNames(
-                        cleanTemplate(template, props.className),
-                        ...templateElements.map((t) => t(props))
-                    )} />
-            ))
-        }
+    ) => {
+        return React.forwardRef<E, P & K>((props, ref) => (
+            <Element
+                // forward props
+                {...(Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P)} // filter out props that starts with "$"
+                // forward ref
+                ref={ref}
+                // set class names
+                className={cleanTemplate(
+                    mergeArrays(
+                        template,
+                        templateElements.map((t) => t(props))
+                    ),
+                    props.className
+                )}
+            />
+        ))
+    }
 }
 
 export type IntrinsicElements = {

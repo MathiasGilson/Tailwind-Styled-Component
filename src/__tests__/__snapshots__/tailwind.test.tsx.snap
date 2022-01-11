@@ -40,6 +40,16 @@ exports[`tw matches snapshot with two dynamic properties 1`] = `
 </DocumentFragment>
 `;
 
+exports[`tw matches snapshot with two properties & two dynamic properties and maintains class order 1`] = `
+<DocumentFragment>
+  <div
+    class="z-10 bg-gray-500 text-white p-10"
+  >
+    test
+  </div>
+</DocumentFragment>
+`;
+
 exports[`tw matches snapshot with two properties 1`] = `
 <DocumentFragment>
   <div
