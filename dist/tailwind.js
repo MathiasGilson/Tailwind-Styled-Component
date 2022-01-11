@@ -27,15 +27,15 @@ const cleanTemplate = (template, inheritedClasses = "") => {
         .filter((v, i, arr) => arr.indexOf(v) === i));
 };
 exports.cleanTemplate = cleanTemplate;
-const filter$FromProps = ([key]) => key.charAt(0) !== "$" && key !== "as";
+const filter$FromProps = ([key]) => key.charAt(0) !== "$";
 function functionTemplate(Element) {
     return (template, ...templateElements) => {
-        const result = react_1.default.forwardRef((props, ref) => {
-            const FinalElement = props.as || Element;
-            const filteredProps = FinalElement[isTwElement]
+        const result = react_1.default.forwardRef(({ $as, ...props }, ref) => {
+            const FinalElement = $as || Element;
+            const filteredProps = FinalElement[isTwElement] === true
                 ? props
                 : Object.fromEntries(Object.entries(props).filter(filter$FromProps));
-            return (react_1.default.createElement(FinalElement, { ...filteredProps, ref: ref, className: (0, exports.cleanTemplate)((0, exports.mergeArrays)(template, templateElements.map((t) => t(props))), props.className) }));
+            return (react_1.default.createElement(FinalElement, { ...filteredProps, ref: ref, className: (0, exports.cleanTemplate)((0, exports.mergeArrays)(template, templateElements.map((t) => t({ ...props, $as }))), props.className) }));
         });
         result[isTwElement] = true;
         if (typeof Element !== "string") {

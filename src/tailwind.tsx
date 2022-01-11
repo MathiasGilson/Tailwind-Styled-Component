@@ -43,20 +43,8 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
 
 type TransientProps = Record<`$${string}`, any>
 
-// type Check<As> = As extends IntrinsicElementsKeys ? JSX.IntrinsicElements[As] : never
-
-// type NewType<As extends string | React.ComponentType<any>> = React.ComponentProps<
-//     As extends IntrinsicElementsKeys | React.ComponentType<any> ? As : never
-// >
-
-// type ForAs<As extends string> = 0 & 1 extends any ? React.ComponentProps<NewType<As>> : never
-
-// type Const<A> = { [x in keyof A]: A[x] }
-
 interface TwC<P extends {}, E = {}> extends React.ForwardRefExoticComponent<P & E> {
-    // <As extends React.ComponentType<any>>(
-    //     props:{ as: As }& React.ComponentProps<C> ): React.ReactElement<React.ComponentProps<C>>
-    (
+(
         props: P & {
             $as?: never | undefined
         } & E
@@ -66,20 +54,7 @@ interface TwC<P extends {}, E = {}> extends React.ForwardRefExoticComponent<P & 
     ): React.ReactElement<any> | null
     <P2 extends {}>(props: P & { $as: (p: P2) => React.ReactElement | null } & P2 & E): React.ReactElement<any> | null
 
-    // <As extends React.ComponentType<P2>,P2 extends {}>(
-    //     props: P & { as: As } & P2
-    // ): React.ReactElement<any>
-
-    // <As extends string>(props: P & { as: As }): React.ReactElement<P>
-
-    // (props: P ): React.ReactElement<React.ComponentProps<C>>
 }
-// type F = JSX.IntrinsicElements['div']['ref']
-// // const
-
-// const R = <T className="true" />
-
-// type PartialRef<T extends { ref?: any }> = T & { ref?: { current: T | undefined } }
 
 export type Ref<E> = E extends
     | IntrinsicElementsKeys
@@ -89,20 +64,14 @@ export type Ref<E> = E extends
     ? React.ElementRef<E>
     : {}
 
-// let s= null as any as React.ElementRef<React.ComponentType<{css:string}>>
-// type Hdiv = HTMLDivElement
 export type FunctionTemplate<P, E> = <K extends TransientProps = {}>(
     template: TemplateStringsArray,
     ...templateElements: ((props: P & K) => string | undefined | null)[]
 ) => TwC<React.PropsWithoutRef<P & K>, React.RefAttributes<Ref<E> | undefined>>
 
-// type SF = React.RefAttributes<"div">
 interface ClassNameProp {
     className?: string
 }
-// interface AsProp$ {
-//     as: keyof JSX.IntrinsicElements | React.ComponentType<any>
-// }
 interface AsProp {
     $as?: keyof JSX.IntrinsicElements | React.ComponentType<any>
 }
@@ -118,7 +87,7 @@ function functionTemplate<P extends ClassNameProp & AsProp, E = any>(
         const result: any = React.forwardRef<E, P & K>(({ $as, ...props }, ref) => {
             // change Element when `$as` prop detected
             const FinalElement = $as || Element
-            // filter out props that starts with "$" and `$as` props except when styling a tailwind-styled-component
+            // filter out props that starts with "$" props except when styling a tailwind-styled-component
             const filteredProps: Omit<P & K, keyof TransientProps> =
                 FinalElement[isTwElement] === true
                     ? (props as Omit<P & K, keyof TransientProps>)
