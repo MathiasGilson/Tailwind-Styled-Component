@@ -60,7 +60,7 @@ exports[`tw matches snapshot with two properties 1`] = `
 </DocumentFragment>
 `;
 
-exports[`tw should render Component as html tag in \`as\` prop 1`] = `
+exports[`tw should render Component as html tag in \`$as\` prop 1`] = `
 <DocumentFragment>
   <a
     class="bg-red-500"
@@ -69,7 +69,7 @@ exports[`tw should render Component as html tag in \`as\` prop 1`] = `
 </DocumentFragment>
 `;
 
-exports[`tw should render component as component in \`as\` prop: test 1 1`] = `
+exports[`tw should render component as component in \`$as\` prop: test 1 1`] = `
 <DocumentFragment>
   <nav
     class="flex h-20 w-full flex-col h-full w-20 text-black bg-gray-500"
@@ -77,7 +77,7 @@ exports[`tw should render component as component in \`as\` prop: test 1 1`] = `
 </DocumentFragment>
 `;
 
-exports[`tw should render component as component in \`as\` prop: test 2 1`] = `
+exports[`tw should render component as component in \`$as\` prop: test 2 1`] = `
 <DocumentFragment>
   <nav
     class="flex h-20 w-full bg-red-500"
@@ -85,7 +85,17 @@ exports[`tw should render component as component in \`as\` prop: test 2 1`] = `
 </DocumentFragment>
 `;
 
-exports[`tw should render tag Component as html tag in \`as\` prop 1`] = `
+
+exports[`tw should render tag Component as html tag in \`$as\` prop 1`] = `
+<DocumentFragment>
+  <a
+    class="text-black bg-gray-500"
+    href="http://"
+  />
+</DocumentFragment>
+`;
+
+exports[`tw should render tag Component as html tag in \`$as\` prop 1`] = `
 <DocumentFragment>
   <a
     class="text-black bg-gray-500"

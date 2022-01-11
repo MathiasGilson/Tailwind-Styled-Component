@@ -136,38 +136,38 @@ describe("tw", () => {
         expect(asFragment()).toMatchSnapshot()
     })
 
-    it("should render tag Component as html tag in `as` prop", () => {
+    it("should render tag Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
       text-black
       ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       `
 
-        const { asFragment } = render(<Div as="a" $test1="true" href="http://" />)
+        const { asFragment } = render(<Div $as="a" $test1="true" href="http://" />)
         expect(asFragment()).toMatchSnapshot()
     })
 
-    it("should render Component as html tag in `as` prop", () => {
+    it("should render Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
         ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
         const RedDiv = tw(Div)`bg-red-500`
-        const { asFragment } = render(<RedDiv as="a" $test1="true" href="http://" />)
+        const { asFragment } = render(<RedDiv $as="a" $test1="true" href="http://" />)
         expect(asFragment()).toMatchSnapshot()
     })
 
-    it("should render component as component in `as` prop: test 1", () => {
+    it("should render component as component in `$as` prop: test 1", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
         ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
         const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
-        const { asFragment } = render(<Div as={Nav} $test1="true" $isVertical={true} />)
+        const { asFragment } = render(<Div $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
     })
 
-    it("should render component as component in `as` prop: test 2", () => {
+    it("should render component as component in `$as` prop: test 2", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
         ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
@@ -175,7 +175,7 @@ describe("tw", () => {
         const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const RedDiv = tw(Div)`bg-red-500`
-        const { asFragment } = render(<RedDiv as={Nav} $test1="true" $isVertical={false} />)
+        const { asFragment } = render(<RedDiv $as={Nav} $test1="true" $isVertical={false} />)
         expect(asFragment()).toMatchSnapshot()
     })
 })

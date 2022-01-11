@@ -11,7 +11,7 @@ export default () => {
 
     return (
         <Container>
-            <Title $bold={false} $large={true} as={RedContainer}>
+            <Title $bold={false} $large={true} $as={RedContainer}>
                 Hello
             </Title>
             <Input onChange={onChange} onFocus={() => console.log(`focus`)} value={value} />
@@ -22,7 +22,7 @@ export default () => {
                     <br />I have following classes: flex items-center
                 </pre>
             </DefaultContainer>
-            <RedContainer $bold={true} as={Title} $large={true}>
+            <RedContainer $bold={true} $as={Title} $large={true}>
                 <pre>
                     Red Container
                     <br />
