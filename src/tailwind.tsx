@@ -8,7 +8,7 @@ export type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
 
 export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
-        (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove falsey values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
+        (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove false values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
         [] as (string | undefined | null)[]
     )
 }
@@ -32,19 +32,10 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
     ) as string // to remove "TAILWIND_STRING" type
 }
 
-// function parseTailwindClassNames(template: string[], ...templateElements: (string | undefined | null)[]) {
-//     return template
-//         .reduce((classes, c) => {
-//             return `${classes} ${c}` // set tailwind classes names on one line
-//         }, templateElements.join(" "))
-//         .trim()
-//         .replace(/\s{2,}/g, " ") // replace line return by space
-// }
-
 type TransientProps = Record<`$${string}`, any>
 
 interface TwC<P extends {}, E = {}> extends React.ForwardRefExoticComponent<P & E> {
-(
+    (
         props: P & {
             $as?: never | undefined
         } & E
@@ -53,21 +44,12 @@ interface TwC<P extends {}, E = {}> extends React.ForwardRefExoticComponent<P & 
         props: P & { $as: As } & JSX.IntrinsicElements[As] & E
     ): React.ReactElement<any> | null
     <P2 extends {}>(props: P & { $as: (p: P2) => React.ReactElement | null } & P2 & E): React.ReactElement<any> | null
-
 }
 
-export type Ref<E> = E extends
-    | IntrinsicElementsKeys
-    | React.ForwardRefExoticComponent<any>
-    | { new (props: any): React.Component<any> }
-    | ((props: any, context?: any) => React.ReactElement | null)
-    ? React.ElementRef<E>
-    : {}
-
-export type FunctionTemplate<P, E> = <K extends TransientProps = {}>(
+export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
     template: TemplateStringsArray,
     ...templateElements: ((props: P & K) => string | undefined | null)[]
-) => TwC<React.PropsWithoutRef<P & K>, React.RefAttributes<Ref<E> | undefined>>
+) => TwC<React.PropsWithoutRef<P & K>, React.RefAttributes<E | undefined>> // E | undefined to remove type errors in stricter ref typing
 
 interface ClassNameProp {
     className?: string
@@ -77,9 +59,9 @@ interface AsProp {
 }
 const filter$FromProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
-function functionTemplate<P extends ClassNameProp & AsProp, E = any>(
+function templateFunction<P extends ClassNameProp & AsProp, E = any>(
     Element: React.ComponentType<P>
-): FunctionTemplate<P, E> {
+): TemplateFunction<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
@@ -125,17 +107,17 @@ function functionTemplate<P extends ClassNameProp & AsProp, E = any>(
 }
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: FunctionTemplate<JSX.IntrinsicElements[key], key>
+    [key in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[key], React.ElementRef<key>>
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
     <K extends keyof JSX.IntrinsicElements>(acc: IntrinsicElements, DomElement: K) => ({
         ...acc,
-        [DomElement]: functionTemplate(DomElement as unknown as React.ComponentType<JSX.IntrinsicElements[K]>)
+        [DomElement]: templateFunction(DomElement as unknown as React.ComponentType<JSX.IntrinsicElements[K]>)
     }),
     {} as IntrinsicElements
 )
 
-const tw = Object.assign(functionTemplate, intrinsicElements)
+const tw = Object.assign(templateFunction, intrinsicElements)
 
 export default tw
