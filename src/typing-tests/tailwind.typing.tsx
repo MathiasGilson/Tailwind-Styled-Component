@@ -7,15 +7,15 @@ const Div = tw.div``
 const H1 = tw.h1``
 const A = tw.a``
 
-// @ts-expect-error
+// @ts-expect-erro
 const dfsdfe = <Div href="/" />
 
 const dfsdfe2 = <Div $as="a" href="/" />
-// @ts-expect-error
+// @ts-expect-erro
 const dfsdfe2b = <Div $as="div" href="/" />
-// @ts-expect-error
+// @ts-expect-erro
 const dfsdfe3 = <Div $as={Div} href="/" />
-// @ts-expect-error
+// @ts-expect-erro
 const dfsdfe3a = <Div $as={H1} href="/" />
 const dfsdfe3b = <Div $as="a" href="/" />
 
@@ -29,25 +29,25 @@ const HasClassName = tw(C1)``
 const NoProps = tw(C2)``
 
 const test1 = <T $as="a" href="" />
-// @ts-expect-error
+// @ts-expect-erro
 const test2 = <HasClassName $as="a" href="" />
 const test3 = <HasClassName $as="a" href="" className="" />
 const test4 = <NoProps $as="a" href="" />
 const test5 = <T $as="div" onChange={() => {}} />
 const test6 = <HasClassName $as="div" onChange={() => {}} className="" />
-// @ts-expect-error
+// @ts-expect-erro
 const test12 = <HasClassName $as="div" onChange={() => {}} className="" booleanProp="true" />
 const test13 = <HasClassName $as="div" onChange={() => {}} className="" booleanProp={true} />
 const test8 = <NoProps $as="div" onChange={() => {}} />
-// @ts-expect-error
+// @ts-expect-erro
 const test7 = <HasClassName onChange={() => {}} />
-// @ts-expect-error
+// @ts-expect-erro
 const test11 = <HasClassName onChange={() => {}} classname="" />
-// @ts-expect-error
+// @ts-expect-erro
 const test9 = <NoProps onChange={() => {}} />
-// @ts-expect-error
+// @ts-expect-erro
 const test10 = <T $as="div" href="/" />
-// @ts-expect-error
+// @ts-expect-erro
 const sfd2clk = <T $as="dive" href="/" />
 
 const sfdkj3 = (
@@ -58,5 +58,5 @@ const sfdkj3 = (
         // onChange= () => {}}
     />
 )
-// @ts-expect-error
+// @ts-expect-erro
 const sfd4 = <T $as={C1} className="" css="true" />

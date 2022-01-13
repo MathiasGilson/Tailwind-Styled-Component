@@ -19,6 +19,7 @@
     ],
     "scripts": {
         "build": "tsc",
+        "build:esbuild": "node esbuild.js",
         "dev": "tsc -w",
         "clean": "rimraf dist",
         "test": "jest",
@@ -38,6 +39,7 @@
         "@types/react": "^17.0.38",
         "@typescript-eslint/eslint-plugin": "^5.9.0",
         "@typescript-eslint/parser": "^5.9.0",
+        "esbuild": "^0.14.11",
         "eslint": "^8.6.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",

@@ -33,23 +33,25 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
 }
 
 type TransientProps = Record<`$${string}`, any>
+type NoInfer<T> = [T][T extends any ? 0 : never]
+type Const<T> = { [K in keyof T]: T[K] }
 
-interface TwC<P extends {}, E = {}> extends React.ForwardRefExoticComponent<P & E> {
+interface TwC<P extends {}> extends Const<React.ForwardRefExoticComponent<P>> {
     (
         props: P & {
             $as?: never | undefined
-        } & E
+        }
     ): React.ReactElement<any> | null
     <As extends IntrinsicElementsKeys>(
-        props: P & { $as: As } & JSX.IntrinsicElements[As] & E
+        props: P & { $as: As } & JSX.IntrinsicElements[As]
     ): React.ReactElement<any> | null
-    <P2 extends {}>(props: P & { $as: (p: P2) => React.ReactElement | null } & P2 & E): React.ReactElement<any> | null
+    <P2 extends {}>(props: P & { $as: React.ComponentType<P2> } & NoInfer<P2>): React.ReactElement<any> | null
 }
 
 export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
     template: TemplateStringsArray,
     ...templateElements: ((props: P & K) => string | undefined | null)[]
-) => TwC<React.PropsWithoutRef<P & K>, React.RefAttributes<E | undefined>> // E | undefined to remove type errors in stricter ref typing
+) => TwC<React.PropsWithoutRef<P & K> & React.RefAttributes<E | undefined>> // E | undefined to remove type errors in stricter ref typing
 
 interface ClassNameProp {
     className?: string
