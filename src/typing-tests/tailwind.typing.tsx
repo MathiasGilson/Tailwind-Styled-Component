@@ -32,7 +32,9 @@ const test1 = <T $as="a" href="" />
 // @ts-expect-error
 const test2 = <HasClassName $as="a" href="" />
 const test3 = <HasClassName $as="a" href="" className="" />
-const test4 = <NoProps $as="a" href="" />
+// @ts-expect-error
+const test4 = <NoProps $as="div" href="" />
+const test4b = <NoProps $as="a" href="" />
 const test5 = <T $as="div" onChange={() => {}} />
 const test6 = <HasClassName $as="div" onChange={() => {}} className="" />
 // @ts-expect-error

@@ -33,23 +33,30 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
 }
 
 type TransientProps = Record<`$${string}`, any>
+// Prevent unnecessary type inference
+type NoInfer<T> = [T][T extends any ? 0 : never]
+// Removes call signatures i.e functions from Object types
+type StripCallSignature<T> = { [K in keyof T]: T[K] }
 
-interface TwC<P extends {}, E = {}> extends React.ForwardRefExoticComponent<P & E> {
+// call signatures in React.ForwardRefExoticComponent were interfering
+interface TailwindComponent<P extends {}> extends StripCallSignature<React.ForwardRefExoticComponent<P>> {
     (
         props: P & {
             $as?: never | undefined
-        } & E
+        }
     ): React.ReactElement<any> | null
+
     <As extends IntrinsicElementsKeys>(
-        props: P & { $as: As } & JSX.IntrinsicElements[As] & E
+        props: P & { $as: As } & JSX.IntrinsicElements[As]
     ): React.ReactElement<any> | null
-    <P2 extends {}>(props: P & { $as: (p: P2) => React.ReactElement | null } & P2 & E): React.ReactElement<any> | null
+
+    <P2 extends {}>(props: P & { $as: React.ComponentType<P2> } & NoInfer<P2>): React.ReactElement<any> | null
 }
 
 export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
     template: TemplateStringsArray,
     ...templateElements: ((props: P & K) => string | undefined | null)[]
-) => TwC<React.PropsWithoutRef<P & K>, React.RefAttributes<E | undefined>> // E | undefined to remove type errors in stricter ref typing
+) => TailwindComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E | undefined>> // E | undefined to remove type errors in stricter `ref` typing
 
 interface ClassNameProp {
     className?: string
@@ -107,7 +114,7 @@ function templateFunction<P extends ClassNameProp & AsProp, E = any>(
 }
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[key], React.ElementRef<key>>
+    [key in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[key], React.ElementRef<key>> // React.ElementRef turns a tag string e.g `"div"` to an Element e.g HTMLDivElement
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
