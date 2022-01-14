@@ -56,7 +56,7 @@ interface TailwindComponent<P extends {}> extends StripCallSignature<React.Forwa
 export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
     template: TemplateStringsArray,
     ...templateElements: ((props: P & K) => string | undefined | null)[]
-) => TailwindComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E | undefined>> // E | undefined to remove type errors in stricter `ref` typing
+) => TailwindComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
 
 interface ClassNameProp {
     className?: string
@@ -73,9 +73,10 @@ function templateFunction<P extends ClassNameProp & AsProp, E = any>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) => {
-        const result: any = React.forwardRef<E, P & K>(({ $as, ...props }, ref) => {
+        const result = React.forwardRef<E, P & K>(({ $as, ...props }, ref) => {
             // change Element when `$as` prop detected
             const FinalElement = $as || Element
+
             // filter out props that starts with "$" props except when styling a tailwind-styled-component
             const filteredProps: Omit<P & K, keyof TransientProps> =
                 FinalElement[isTwElement] === true
@@ -103,18 +104,22 @@ function templateFunction<P extends ClassNameProp & AsProp, E = any>(
         })
         // symbol identifier for detecting tailwind-styled-components
         result[isTwElement] = true
-        // This enables the react tree to show a name in devtools, much better debugging experience
+        // This enables the react tree to show a name in devtools, much better debugging experience Note: Far from perfect, better implementations welcome
         if (typeof Element !== "string") {
-            result.displayName = Element.displayName || Element.name
+            result.displayName = Element.displayName || Element.name || "tw.Component"
         } else {
             result.displayName = "tw." + Element
         }
+
         return result
     }
 }
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[key], React.ElementRef<key>> // React.ElementRef turns a tag string e.g `"div"` to an Element e.g HTMLDivElement
+    [key in keyof JSX.IntrinsicElements]: TemplateFunction<
+        JSX.IntrinsicElements[key],
+        React.ElementRef<key> | undefined // | undefined to remove type errors in stricter `ref` typing
+    > // React.ElementRef turns a tag string to an Element e.g `"div"` to `HTMLDivElement`
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
