@@ -63,6 +63,23 @@ describe("tw", () => {
         })
     })
 
+    it("should have a proper displayName", () => {
+        const Div = tw.div`bg-gray-400`
+        const A = tw.a`bg-gray-400`
+        const Nav = tw.nav`bg-gray-400`
+        const H1 = tw.h1`bg-gray-400`
+
+        const TestComponent = () => <></>
+
+        const TwTestComponent = tw(TestComponent)``
+
+        expect(Div.displayName).toBe("tw.div")
+        expect(A.displayName).toBe("tw.a")
+        expect(Nav.displayName).toBe("tw.nav")
+        expect(H1.displayName).toBe("tw.h1")
+        expect(TwTestComponent.displayName).toBe("TestComponent")
+    })
+
     it("matches snapshot with intrinsic element", () => {
         const Div = tw.div`bg-gray-400`
         const { asFragment } = render(<Div>test</Div>)
