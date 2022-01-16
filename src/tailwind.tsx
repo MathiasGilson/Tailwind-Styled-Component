@@ -2,6 +2,10 @@ import React from "react"
 import domElements from "./domElements"
 import { classnames } from "tailwindcss-classnames"
 
+const isTwElement = Symbol("isTwElement?")
+
+export type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
+
 export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
         (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove false values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
@@ -18,59 +22,110 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
         .split(" ")
         .filter((c) => c !== ",") // remove comma introduced by template to string
 
-    const inheritedClassesArray: any = inheritedClasses ? inheritedClasses.split(" ") : []
+    const inheritedClassesArray: string[] = inheritedClasses ? inheritedClasses.split(" ") : []
 
     return classnames(
-        ...inheritedClassesArray
-            .concat(newClasses) // add new classes
+        ...(newClasses as any)
+            .concat(inheritedClassesArray) // add new classes
             .filter((c: string) => c !== " ") // remove empty classes
             .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
     ) as string // to remove "TAILWIND_STRING" type
 }
 
 type TransientProps = Record<`$${string}`, any>
+// Prevent unnecessary type inference
+type NoInfer<T> = [T][T extends any ? 0 : never]
+// Removes call signatures i.e functions from Object types
+type StripCallSignature<T> = { [K in keyof T]: T[K] }
+
+// call signatures in React.ForwardRefExoticComponent were interfering
+interface TailwindComponent<P extends {}> extends StripCallSignature<React.ForwardRefExoticComponent<P>> {
+    (
+        props: P & {
+            $as?: never | undefined
+        }
+    ): React.ReactElement<any> | null
+
+    <As extends IntrinsicElementsKeys>(
+        props: P & { $as: As } & JSX.IntrinsicElements[As]
+    ): React.ReactElement<any> | null
+
+    <P2 extends {}>(props: P & { $as: React.ComponentType<P2> } & NoInfer<P2>): React.ReactElement<any> | null
+}
 
 export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
     template: TemplateStringsArray,
     ...templateElements: ((props: P & K) => string | undefined | null)[]
-) => React.ForwardRefExoticComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
+) => TailwindComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
 
 interface ClassNameProp {
     className?: string
 }
+interface AsProp {
+    $as?: keyof JSX.IntrinsicElements | React.ComponentType<any>
+}
+const filter$FromProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
-function templateFunction<P extends ClassNameProp, E = any>(Element: React.ComponentType<P>): TemplateFunction<P, E> {
+function templateFunction<P extends ClassNameProp & AsProp, E = any>(
+    Element: React.ComponentType<P>
+): TemplateFunction<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) => {
-        return React.forwardRef<E, P & K>((props, ref) => (
-            <Element
-                // forward props
-                {...(Object.fromEntries(Object.entries(props).filter(([key]) => key.charAt(0) !== "$")) as P)} // filter out props that starts with "$"
-                // forward ref
-                ref={ref}
-                // set class names
-                className={cleanTemplate(
-                    mergeArrays(
-                        template,
-                        templateElements.map((t) => t(props))
-                    ),
-                    props.className
-                )}
-            />
-        ))
+        const result = React.forwardRef<E, P & K>(({ $as, ...props }, ref) => {
+            // change Element when `$as` prop detected
+            const FinalElement = $as || Element
+
+            // filter out props that starts with "$" props except when styling a tailwind-styled-component
+            const filteredProps: Omit<P & K, keyof TransientProps> =
+                FinalElement[isTwElement] === true
+                    ? (props as Omit<P & K, keyof TransientProps>)
+                    : (Object.fromEntries(Object.entries(props).filter(filter$FromProps)) as Omit<
+                          P & K,
+                          keyof TransientProps
+                      >)
+            return (
+                <FinalElement
+                    // forward props
+                    {...filteredProps}
+                    // forward ref
+                    ref={ref}
+                    // set class names
+                    className={cleanTemplate(
+                        mergeArrays(
+                            template,
+                            templateElements.map((t) => t({ ...props, $as } as P & K))
+                        ),
+                        props.className
+                    )}
+                />
+            )
+        })
+        // symbol identifier for detecting tailwind-styled-components
+        result[isTwElement] = true
+        // This enables the react tree to show a name in devtools, much better debugging experience Note: Far from perfect, better implementations welcome
+        if (typeof Element !== "string") {
+            result.displayName = Element.displayName || Element.name || "tw.Component"
+        } else {
+            result.displayName = "tw." + Element
+        }
+
+        return result
     }
 }
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[key], any>
+    [key in keyof JSX.IntrinsicElements]: TemplateFunction<
+        JSX.IntrinsicElements[key],
+        React.ElementRef<key> | undefined // | undefined to remove type errors in stricter `ref` typing
+    > // React.ElementRef turns a tag string to an Element e.g `"div"` to `HTMLDivElement`
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
     <K extends keyof JSX.IntrinsicElements>(acc: IntrinsicElements, DomElement: K) => ({
         ...acc,
-        [DomElement]: templateFunction((DomElement as unknown) as React.ComponentType<JSX.IntrinsicElements[K]>)
+        [DomElement]: templateFunction(DomElement as unknown as React.ComponentType<JSX.IntrinsicElements[K]>)
     }),
     {} as IntrinsicElements
 )
