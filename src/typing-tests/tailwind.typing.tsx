@@ -21,12 +21,22 @@ const dfsdfe3b = <Div $as="a" href="/" />
 
 const dfsdfe3c = <Div $as={A} href="/" />
 
-const C1 = (_props: { className: string; booleanProp?: boolean }) => <div />
+const C1 = (props: { className: string; booleanProp?: boolean }) => <div children={props.booleanProp} />
 const C2 = () => <div />
+const C3 = (props: { booleanProp: boolean }) => <div children={props.booleanProp} />
 
 const T = tw.div``
 const HasClassName = tw(C1)``
+const HasClassNameAndBoolean = tw(C3)`
+h-full
+`
 const NoProps = tw(C2)``
+
+const TG = (props: { gar: number }) => <div>{props.gar}</div>
+
+const SignInButton = tw(TG)`
+px-5 py-2 rounded-3xl bg-green-500 transition-all hover:bg-white
+`
 
 const test1 = <T $as="a" href="" />
 // @ts-expect-error
