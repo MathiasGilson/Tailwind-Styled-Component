@@ -4,7 +4,7 @@ import { classnames } from "tailwindcss-classnames"
 
 const isTwElement = Symbol("isTwElement?")
 
-export type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
+type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
 
 export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
@@ -59,32 +59,27 @@ export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
 ) => TailwindComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
 
 interface ClassNameProp {
-    className?: string
+    className?: string | undefined
 }
 interface AsProp {
-    $as?: keyof JSX.IntrinsicElements | React.ComponentType<any>
+    $as?: keyof JSX.IntrinsicElements | React.ComponentType<any> | undefined
 }
 const filter$FromProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
-function templateFunction<P extends ClassNameProp & AsProp, E = any>(
-    Element: React.ComponentType<P>
-): TemplateFunction<P, E> {
+function templateFunction<P extends {}, E = any>(Element: React.ComponentType<P> | string): TemplateFunction<P, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: P & K) => string | undefined | null)[]
     ) => {
-        const result = React.forwardRef<E, P & K>(({ $as, ...props }, ref) => {
+        const result = React.forwardRef<E, P & AsProp & ClassNameProp & K>(({ $as, ...props }, ref) => {
             // change Element when `$as` prop detected
             const FinalElement = $as || Element
 
             // filter out props that starts with "$" props except when styling a tailwind-styled-component
-            const filteredProps: Omit<P & K, keyof TransientProps> =
+            const filteredProps: P & K =
                 FinalElement[isTwElement] === true
-                    ? (props as Omit<P & K, keyof TransientProps>)
-                    : (Object.fromEntries(Object.entries(props).filter(filter$FromProps)) as Omit<
-                          P & K,
-                          keyof TransientProps
-                      >)
+                    ? (props as P & K)
+                    : (Object.fromEntries(Object.entries(props).filter(filter$FromProps)) as P & K)
             return (
                 <FinalElement
                     // forward props
