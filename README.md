@@ -231,6 +231,22 @@ Will be rendered as
 </div>
 ```
 
+### Polymorphic Components
+
+If you want to keep all the styling you've applied to a component but just switch out what's being ultimately rendered (be it a different HTML tag or a different custom component), you can use the `$as` prop to do this at runtime.
+
+```js
+const Button = tw.button`inline-flex items-center p-2`
+
+<Button $as="a" href="#">Link</Button>
+```
+
+Will render as
+
+```html
+<a href="#" class="inline-flex items-center p-2">Link</a>
+```
+
 ## Example
 
 ```tsx
