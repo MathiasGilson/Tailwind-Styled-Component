@@ -39,7 +39,7 @@ type NoInfer<T> = [T][T extends any ? 0 : never]
 type StripCallSignature<T> = { [K in keyof T]: T[K] }
 
 // call signatures in React.ForwardRefExoticComponent were interfering
-interface TailwindComponent<P extends {}> extends StripCallSignature<React.ForwardRefExoticComponent<P>> {
+export interface TailwindComponent<P extends {}> extends StripCallSignature<React.ForwardRefExoticComponent<P>> {
     (
         props: P & {
             $as?: never | undefined
