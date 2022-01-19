@@ -20,6 +20,7 @@
     "scripts": {
         "build": "tsc",
         "build:esbuild": "rimraf build && node esbuild.js && tsc -p tsconfig.types.json",
+        "postbuild": "test",
         "dev": "tsc -w",
         "clean": "rimraf dist",
         "test": "jest",
