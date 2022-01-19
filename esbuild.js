@@ -4,5 +4,5 @@ require("esbuild").buildSync({
     minify: true,
     sourcemap: true,
     target: ["chrome58", "firefox57", "safari11", "edge18"],
-    outfile: "build/out.js"
+    outfile: "build/index.js"
 })

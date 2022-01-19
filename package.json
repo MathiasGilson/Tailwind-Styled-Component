@@ -13,13 +13,13 @@
         "tailwindcss-ui"
     ],
     "description": "Create tailwind css react components like styled components with classes name on multiple lines",
-    "main": "dist/index.js",
+    "main": "build/index.js",
     "files": [
-        "dist/**/*"
+        "build/**/*"
     ],
     "scripts": {
         "build": "tsc",
-        "build:esbuild": "node esbuild.js",
+        "build:esbuild": "rimraf build && node esbuild.js && tsc -p tsconfig.types.json",
         "dev": "tsc -w",
         "clean": "rimraf dist",
         "test": "jest",

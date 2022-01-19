@@ -11,7 +11,7 @@ const A = tw.a``
 const dfsdfe = <Div href="/" />
 
 const dfsdfe2 = <Div $as="a" href="/" />
-// @ts-expect-error
+// @ts-expect-errork
 const dfsdfe2b = <Div $as="div" href="/" />
 // @ts-expect-error
 const dfsdfe3 = <Div $as={Div} href="/" />
@@ -24,12 +24,25 @@ const dfsdfe3c = <Div $as={A} href="/" />
 const C1 = (props: { className: string; booleanProp?: boolean }) => <div children={props.booleanProp} />
 const C2 = () => <div />
 const C3 = (props: { booleanProp: boolean }) => <div children={props.booleanProp} />
+const C4 = (props: { booleanProp: boolean; children?: string }) => <div children={props.booleanProp} />
+const C5 = (props: React.PropsWithChildren<{ booleanProp: boolean;}>) => <div children={props.booleanProp} />
 
 const T = tw.div``
 const HasClassName = tw(C1)``
 const HasClassNameAndBoolean = tw(C3)`
 h-full
 `
+const HasChildren = tw(C4)``
+const HasReqChildren = tw(C5)``
+
+function testfunc <E extends React.ComponentType<any>, P=React.ComponentProps<E>>(e: E ): P {
+    return e as any
+}
+
+const expected = testfunc(C5)
+
+// type P = 
+
 const NoProps = tw(C2)``
 
 const TG = (props: { gar: number }) => <div>{props.gar}</div>
