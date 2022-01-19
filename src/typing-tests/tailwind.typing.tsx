@@ -25,7 +25,7 @@ const C1 = (props: { className: string; booleanProp?: boolean }) => <div childre
 const C2 = () => <div />
 const C3 = (props: { booleanProp: boolean }) => <div children={props.booleanProp} />
 const C4 = (props: { booleanProp: boolean; children?: string }) => <div children={props.booleanProp} />
-const C5 = (props: React.PropsWithChildren<{ booleanProp: boolean;}>) => <div children={props.booleanProp} />
+const C5 = (props: React.PropsWithChildren<{ booleanProp: boolean }>) => <div children={props.booleanProp} />
 
 const T = tw.div``
 const HasClassName = tw(C1)``
@@ -35,21 +35,27 @@ h-full
 const HasChildren = tw(C4)``
 const HasReqChildren = tw(C5)``
 
-function testfunc <E extends React.ComponentType<any>, P=React.ComponentProps<E>>(e: E ): P {
+function testfunc<E extends React.ComponentType<any>, P = React.ComponentProps<E>>(e: E): P {
     return e as any
 }
 
 const expected = testfunc(C5)
 
-// type P = 
+// type P =
 
 const NoProps = tw(C2)``
 
 const TG = (props: { gar: number }) => <div>{props.gar}</div>
 
-const SignInButton = tw(TG)`
-px-5 py-2 rounded-3xl bg-green-500 transition-all hover:bg-white
-`
+const TR = tw(TG)``
+
+const Divv = tw.div<{ $test1: string }>`
+        text-black
+        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        `
+const RedDiv = tw(Divv)`bg-red-500`
+const AsDiv = <RedDiv $as="div" $test1="true" />
+const AsA = <RedDiv $as="a" $test1="true" href="http://" />
 
 const test1 = <T $as="a" href="" />
 // @ts-expect-error
