@@ -6,13 +6,16 @@ const makeAllPackagesExternalPlugin = {
     }
 }
 
+const pkg = require("./package.json")
+
 require("esbuild").build({
     entryPoints: ["./src/index.ts"],
-    // format: "esm",
+    format: "esm",
     bundle: true,
     minify: true,
     sourcemap: true,
-    target: ["chrome58", "firefox57", "safari11", "edge18"],
+    target: ["chrome70"],
     outfile: "build/index.js",
-    plugins: [makeAllPackagesExternalPlugin]
+    external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})]
+    // plugins: [makeAllPackagesExternalPlugin]
 })
