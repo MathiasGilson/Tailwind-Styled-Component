@@ -47,10 +47,10 @@ export interface TailwindComponent<P extends {}> extends StripCallSignature<Reac
     ): React.ReactElement<any> | null
 
     <As extends IntrinsicElementsKeys>(
-        props: P & { $as: As } & JSX.IntrinsicElements[As]
+        props: P & { $as?: As } & JSX.IntrinsicElements[As]
     ): React.ReactElement<any> | null
 
-    <P2 extends {}>(props: P & { $as: React.ComponentType<P2> } & NoInfer<P2>): React.ReactElement<any> | null
+    <P2 extends {}>(props: P & { $as?: React.ComponentType<P2> } & NoInfer<P2>): React.ReactElement<any> | null
 }
 
 export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
