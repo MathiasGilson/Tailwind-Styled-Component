@@ -13,19 +13,21 @@
         "tailwindcss-ui"
     ],
     "description": "Create tailwind css react components like styled components with classes name on multiple lines",
-    "main": "build/index.js",
+    "main": "build/tailwind-styled-components.cjs.js",
+    "module": "build/tailwind-styled-components.esm.js",
+    "types": "build/index.d.ts",
     "files": [
         "build/**/*"
     ],
     "scripts": {
-        "build": "tsc",
-        "build:esbuild": "rimraf build && node esbuild.js && tsc -p tsconfig.types.json",
-        "postbuild": "test",
+        "build": "yarn run clean && yarn run build:types && node esbuild.js ",
+        "build:types": "tsc -p tsconfig.types.json",
+        "postbuild": "yarn run test",
         "dev": "tsc -w",
-        "clean": "rimraf dist",
+        "clean": "rimraf build",
         "test": "jest",
         "posttest": "tsc -p ./src/typing-tests/tsconfig.json",
-        "prepublishOnly": "npm run clean && npm run build"
+        "prepublishOnly": "npm run build"
     },
     "homepage": "https://github.com/MathiasGilson/tailwind-styled-component",
     "bugs": {
