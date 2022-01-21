@@ -1,21 +1,27 @@
-const makeAllPackagesExternalPlugin = {
-    name: "make-all-packages-external",
-    setup(build) {
-        const filter = /^[^.\/]|^\.[^.\/]|^\.\.[^\/]/ // Must not start with "/" or "./" or "../"
-        build.onResolve({ filter }, (args) => ({ path: args.path, external: true }))
-    }
-}
-
 const pkg = require("./package.json")
 
-require("esbuild").build({
-    entryPoints: ["./src/index.ts"],
-    format: "esm",
-    bundle: true,
-    minify: true,
-    sourcemap: true,
-    target: ["chrome70"],
-    outfile: "build/index.js",
-    external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})]
-    // plugins: [makeAllPackagesExternalPlugin]
-})
+const build = require("esbuild").build
+
+const buildOptions = [
+    { format: "esm", outfile: "build/tailwind-styled-components.esm.js" },
+    { format: "cjs", outfile: "build/tailwind-styled-components.cjs.js" }
+]
+const external = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})]
+
+const buildAll = async () => {
+    const bundleFiles = buildOptions.map(async ({ format, outfile }) =>
+        build({
+            entryPoints: ["./src/index.ts"],
+            format,
+            bundle: true,
+            minify: true,
+            sourcemap: true,
+            outfile,
+            external // exclude dependencies from bundle
+        })
+    )
+
+    await Promise.all(bundleFiles)
+}
+
+buildAll()
