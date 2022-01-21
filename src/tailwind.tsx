@@ -4,7 +4,7 @@ import { classnames } from "tailwindcss-classnames"
 
 const isTwElement = Symbol("isTwElement?")
 
-export type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
+type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
 
 export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
@@ -47,10 +47,12 @@ interface TailwindComponent<P extends {}> extends StripCallSignature<React.Forwa
     ): React.ReactElement<any> | null
 
     <As extends IntrinsicElementsKeys>(
-        props: P & { $as: As } & JSX.IntrinsicElements[As]
+        props: Omit<P, "$as"> & { $as: As } & JSX.IntrinsicElements[As]
     ): React.ReactElement<any> | null
 
-    <P2 extends {}>(props: P & { $as: React.ComponentType<P2> } & NoInfer<P2>): React.ReactElement<any> | null
+    <P2 extends {}>(
+        props: Omit<P, "$as"> & { $as: React.ComponentType<P2> } & NoInfer<P2>
+    ): React.ReactElement<any> | null
 }
 
 export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
@@ -59,49 +61,51 @@ export type TemplateFunction<P, E> = <K extends TransientProps = {}>(
 ) => TailwindComponent<React.PropsWithoutRef<P & K> & React.RefAttributes<E>>
 
 interface ClassNameProp {
-    className?: string
+    className?: string | undefined
 }
 interface AsProp {
     $as?: keyof JSX.IntrinsicElements | React.ComponentType<any>
 }
 const filter$FromProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
-function templateFunction<P extends ClassNameProp & AsProp, E = any>(
-    Element: React.ComponentType<P>
-): TemplateFunction<P, E> {
+function templateFunction<
+    E extends React.ComponentType<any>
+    // P extends React.ComponentProps<E> = React.ComponentProps<E>
+>(Element: E): TemplateFunction<React.ComponentProps<E>, E> {
     return <K extends {}>(
         template: TemplateStringsArray,
-        ...templateElements: ((props: P & K) => string | undefined | null)[]
+        ...templateElements: ((props: React.ComponentProps<E> & K) => string | undefined | null)[]
     ) => {
-        const result = React.forwardRef<E, P & K>(({ $as, ...props }, ref) => {
-            // change Element when `$as` prop detected
-            const FinalElement = $as || Element
+        const result = React.forwardRef<E, React.ComponentProps<E> & AsProp & ClassNameProp & K>(
+            ({ $as, ...props }, ref) => {
+                // change Element when `$as` prop detected
+                const FinalElement = $as || Element
 
-            // filter out props that starts with "$" props except when styling a tailwind-styled-component
-            const filteredProps: Omit<P & K, keyof TransientProps> =
-                FinalElement[isTwElement] === true
-                    ? (props as Omit<P & K, keyof TransientProps>)
-                    : (Object.fromEntries(Object.entries(props).filter(filter$FromProps)) as Omit<
-                          P & K,
-                          keyof TransientProps
-                      >)
-            return (
-                <FinalElement
-                    // forward props
-                    {...filteredProps}
-                    // forward ref
-                    ref={ref}
-                    // set class names
-                    className={cleanTemplate(
-                        mergeArrays(
-                            template,
-                            templateElements.map((t) => t({ ...props, $as } as P & K))
-                        ),
-                        props.className
-                    )}
-                />
-            )
-        })
+                // filter out props that starts with "$" props except when styling a tailwind-styled-component
+                const filteredProps: React.ComponentProps<E> & K =
+                    FinalElement[isTwElement] === true
+                        ? (props as React.ComponentProps<E> & K)
+                        : (Object.fromEntries(
+                              Object.entries(props).filter(filter$FromProps)
+                          ) as React.ComponentProps<E> & K)
+                return (
+                    <FinalElement
+                        // forward props
+                        {...filteredProps}
+                        // forward ref
+                        ref={ref}
+                        // set class names
+                        className={cleanTemplate(
+                            mergeArrays(
+                                template,
+                                templateElements.map((t) => t({ ...props, $as } as React.ComponentProps<E> & K))
+                            ),
+                            props.className
+                        )}
+                    />
+                )
+            }
+        )
         // symbol identifier for detecting tailwind-styled-components
         result[isTwElement] = true
         // This enables the react tree to show a name in devtools, much better debugging experience Note: Far from perfect, better implementations welcome
