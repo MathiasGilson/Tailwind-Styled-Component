@@ -11,10 +11,12 @@ const A = tw.a``
 const dfsdfe = <Div href="/" />
 
 const dfsdfe2 = <Div $as="a" href="/" />
-// @ts-expect-errork
+// @ts-expect-error
 const dfsdfe2b = <Div $as="div" href="/" />
 // @ts-expect-error
 const dfsdfe3 = <Div $as={Div} href="/" />
+// @ts-expect-error
+const dfsdfe3b2 = Div({ $as: Div, href: "/" })
 // @ts-expect-error
 const dfsdfe3a = <Div $as={H1} href="/" />
 const dfsdfe3b = <Div $as="a" href="/" />
@@ -39,7 +41,11 @@ function testfunc<E extends React.ComponentType<any>, P = React.ComponentProps<E
     return e as any
 }
 
-const expected = testfunc(C5)
+const result = testfunc(C5)
+
+expectType<{ booleanProp: boolean } & { children?: React.ReactNode }>(result)
+// @ts-expect-error
+expectType<{ booleanProp: boolean } & { children: React.ReactNode }>(result)
 
 // type P =
 
@@ -55,6 +61,11 @@ const Divv = tw.div<{ $test1: string }>`
         `
 const RedDiv = tw(Divv)`bg-red-500`
 const AsDiv = <RedDiv $as="div" $test1="true" />
+// @ts-expect-error
+const AsDiv2 = <RedDiv $as="div" $test1="true" href="http://" />
+// @ts-expect-error
+const AsDiv2b = RedDiv({ $as: "div", $test1: "true", href: "http://" })
+
 const AsA = <RedDiv $as="a" $test1="true" href="http://" />
 
 const test1 = <T $as="a" href="" />
@@ -74,12 +85,15 @@ const test8 = <NoProps $as="div" onChange={() => {}} />
 const test7 = <HasClassName onChange={() => {}} />
 // @ts-expect-error
 const test11 = <HasClassName onChange={() => {}} classname="" />
+// const test11b = HasClassName({onChange:() => {}, classname:""})
 // @ts-expect-error
 const test9 = <NoProps onChange={() => {}} />
 // @ts-expect-error
 const test10 = <T $as="div" href="/" />
 // @ts-expect-error
 const sfd2clk = <T $as="dive" href="/" />
+
+type TTTTT = React.ComponentPropsWithRef<typeof HasClassName>
 
 const sfdkj3 = (
     <T
