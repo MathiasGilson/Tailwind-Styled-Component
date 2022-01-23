@@ -32,35 +32,38 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
     ) as string // to remove "TAILWIND_STRING" type
 }
 
-// type TransientProps = Record<`$${string}`, any>
-// // Prevent unnecessary type inference
-// type NoInfer<T> = [T][T extends any ? 0 : never]
 // Removes call signatures i.e functions from Object types
 type StripCallSignature<T> = { [K in keyof T]: T[K] }
 
-// call signatures in React.ForwardRefExoticComponent were interfering
-
+// needed for some reason, without it polymorphic $as props typing has issues - help requested
 type SpreadUnion<U> = U extends any ? { [K in keyof U]: U[K] } : never
 
 type TailwindComponentProps<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object> = SpreadUnion<
     React.RefAttributes<React.ComponentRef<E> | undefined>
 > &
     K
+
 type TailwindComponentPropsWith$As<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
     K extends object,
     As extends IntrinsicElementsKeys | React.ComponentType<any> = E
 > = SpreadUnion<React.ComponentPropsWithoutRef<E> & InnerTailwindComponentProps<As>> & K & { $as?: As }
 
+type TailwindExoticComponent<
+    E extends React.ComponentType<any> | IntrinsicElementsKeys,
+    K extends object
+> = StripCallSignature<React.ForwardRefExoticComponent<TailwindComponentProps<E, K>>>
+
+// call signatures in React.ForwardRefExoticComponent were interfering
 interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object>
-    extends StripCallSignature<React.ForwardRefExoticComponent<TailwindComponentProps<E, K>>> {
+    extends TailwindExoticComponent<E, K> {
     (props: TailwindComponentProps<E, K>): React.ReactElement<TailwindComponentProps<E, K>> | null
 
     <As extends IntrinsicElementsKeys | React.ComponentType<any> = E>(
         props: TailwindComponentPropsWith$As<E, K, As>
     ): React.ReactElement<TailwindComponentPropsWith$As<E, K, As>> | null
 
-    // for easier type inferrence of TailwindComponent
+    // for easier type narrowing of TailwindComponent
     [isTwElement]: boolean
 }
 
@@ -162,29 +165,8 @@ function templateFunction<E extends React.ComponentType<any> | IntrinsicElements
     }
 }
 
-// type R1 = React.ForwardRefExoticComponent<
-//     React.PropsWithoutRef<
-//         OmitU<React.ComponentPropsWithRef<InnerTailwindComponent<"div">>, never> & AsProp & ClassNameProp
-//     > &
-//         React.RefAttributes<"div">
-// >
-
-// type R<F> = F extends React.ForwardRefExoticComponent<infer P1>
-//     ? P1 extends React.PropsWithoutRef<infer P>
-//         ? React.ForwardRefExoticComponent<P>
-//         : never
-//     : never
-// type RR<F> = F extends React.ForwardRefExoticComponent<infer P1>
-//     ? P1 extends React.PropsWithoutRef<any> & React.RefAttributes<infer Ref>
-//         ? React.ForwardRefExoticComponent<Ref>
-//         : never
-//     : never
-
-// type R2 = R<R1>
-// type R3 = RR<R1>
-
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: TemplateFunction<key> // React.ElementRef turns a tag string to an Element e.g `"div"` to `HTMLDivElement`
+    [key in keyof JSX.IntrinsicElements]: TemplateFunction<key>
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
