@@ -19,9 +19,7 @@
         "dist/**/*"
     ],
     "scripts": {
-        "build:esbuild": "rimraf build && yarn run build:types && node esbuild.js ",
         "build": "tsc",
-        "build:types": "tsc -p tsconfig.types.json",
         "postbuild": "yarn run test",
         "dev": "tsc -w",
         "clean": "rimraf dist",
