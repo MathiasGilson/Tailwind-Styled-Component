@@ -2,6 +2,7 @@
     "compilerOptions": {
         "target": "es2018",
         "module": "commonjs",
+        "moduleResolution": "node",
         "lib": ["es5", "es6", "es2015", "es2016", "es2017", "es2018", "esnext"],
         "declaration": true,
         "sourceMap": true,
@@ -19,7 +20,6 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
-        "moduleResolution": "node",
         "rootDirs": ["./", "./src"],
         "typeRoots": ["./types", "./@types", "node_modules/@types"],
         "types": ["node", "jest"],

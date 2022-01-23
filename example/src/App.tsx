@@ -1,10 +1,12 @@
 import React, { useState } from "react"
 import tw from "../../src"
 
+import styled from "styled-components"
+
 export default () => {
     const [value, setValue] = useState("hello")
 
-    const onChange = (e) => {
+    const onChange = (e: any) => {
         console.log(`input`, e.target.value)
         setValue(e.target.value)
     }
@@ -15,6 +17,8 @@ export default () => {
                 Hello
             </Title>
             <Input onChange={onChange} onFocus={() => console.log(`focus`)} value={value} />
+
+            <Anchor>anchor test</Anchor>
 
             <DefaultContainer $bold={false}>
                 <pre>
@@ -34,6 +38,16 @@ export default () => {
         </Container>
     )
 }
+
+const LogInAnchor = tw.a`
+  flex
+`
+const TwAnchor = tw(LogInAnchor)`
+  text-sm
+`
+const Anchor = styled(TwAnchor)<{ $active?: boolean }>`
+    color: ${(props) => (props.$active ? "red" : "blue")};
+`
 
 const Input = tw.input``
 

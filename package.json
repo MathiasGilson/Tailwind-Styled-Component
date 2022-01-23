@@ -1,6 +1,6 @@
 {
     "name": "tailwind-styled-components",
-    "version": "2.0.4",
+    "version": "2.1.1",
     "keywords": [
         "react",
         "css-in-js",
@@ -48,7 +48,7 @@
         "eslint-plugin-prettier": "^4.0.0",
         "jest": "^27.4.7",
         "prettier": "^2.5.1",
-        "react": "^17.0.1",
+        "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "rimraf": "^3.0.2",
         "ts-jest": "^27.1.2",
