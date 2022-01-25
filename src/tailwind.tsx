@@ -39,7 +39,7 @@ type StripCallSignature<T> = { [K in keyof T]: T[K] }
 type SpreadUnion<U> = U extends any ? { [K in keyof U]: U[K] } : never
 
 type TailwindComponentProps<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object> = SpreadUnion<
-    React.RefAttributes<React.ComponentRef<E> | undefined>
+    React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined>
 > &
     K
 
@@ -57,7 +57,9 @@ type TailwindExoticComponent<
 // call signatures in React.ForwardRefExoticComponent were interfering
 interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object>
     extends TailwindExoticComponent<E, K> {
-    (props: TailwindComponentProps<E, K>): React.ReactElement<TailwindComponentProps<E, K>> | null
+    (props: TailwindComponentProps<E, K> & { as?: never | undefined }): React.ReactElement<
+        TailwindComponentProps<E, K>
+    > | null
 
     <As extends IntrinsicElementsKeys | React.ComponentType<any> = E>(
         props: TailwindComponentPropsWith$As<E, K, As>
@@ -95,6 +97,11 @@ type InnerTailwindComponentProps<
     ? React.ComponentPropsWithoutRef<E2> & K2 & React.RefAttributes<React.ComponentRef<E2> | undefined>
     : React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined>
 
+function templateFunction<
+    E extends TailwindComponent<E2, K2>,
+    E2 extends IntrinsicElementsKeys,
+    K2 extends object = {}
+>(Element: E): TemplateFunction<InnerTailwindComponent<E2>, InnerTailwindComponentOtherProps<E>>
 function templateFunction<E extends TailwindComponent<any, any>>(
     Element: E
 ): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>>

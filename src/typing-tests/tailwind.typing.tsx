@@ -16,7 +16,9 @@ const dfsdfe2b = <Div $as="div" href="/" />
 // @ts-expect-error
 const dfsdfe3 = <Div $as={Div} href="/" />
 // @ts-expect-error
-const dfsdfe3b2 = Div({ $as: Div, href: "/" })
+const dfsdfe3b2 = Div({ $as: "div", href: "/" })
+// @ts-expect-error
+const dfsdfe3b2n = Div({ href: "/" })
 // @ts-expect-error
 const dfsdfe3a = <Div $as={H1} href="/" />
 const dfsdfe3b = <Div $as="a" href="/" />
@@ -55,11 +57,11 @@ const TG = (props: { gar: number }) => <div>{props.gar}</div>
 
 const TR = tw(TG)``
 
-const Divv = tw.div<{ $test1: string }>`
+const Divvy = tw.div<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-const RedDiv = tw(Divv)`bg-red-500`
+const RedDiv = tw(Divvy)`bg-red-500`
+
 const AsDiv = <RedDiv $as="div" $test1="true" />
 // @ts-expect-error
 const AsDiv2 = <RedDiv $as="div" $test1="true" href="http://" />
@@ -79,6 +81,10 @@ const test5 = <T $as="div" onChange={() => {}} />
 const test6 = <HasClassName $as="div" onChange={() => {}} className="" />
 // @ts-expect-error
 const test12 = <HasClassName $as="div" onChange={() => {}} className="" booleanProp="true" />
+// @ts-expect-error
+const test12b = <HasClassName onChange={() => {}} className="" booleanProp="true" />
+const test12c = <HasClassName className="" booleanProp={true} />
+const test12d = <HasClassName className="" />
 const test13 = <HasClassName $as="div" onChange={() => {}} className="" booleanProp={true} />
 const test8 = <NoProps $as="div" onChange={() => {}} />
 // @ts-expect-error
