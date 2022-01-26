@@ -107,24 +107,28 @@ type InnerTailwindComponentAllProps<
     ? React.ComponentPropsWithoutRef<E2> & K2 & React.RefAttributes<React.ComponentRef<E2> | undefined> // | undefined to fix types errors with useRef
     : React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined> // | undefined to fix types errors with useRef
 
-/* overload needed to minimize `union is too complex` errors
-when testing due to the size of the IntrinsicElementsKeys union */
-function templateFunction<
-    E extends TailwindComponent<E2, K2>,
-    E2 extends IntrinsicElementsKeys,
-    K2 extends object = {}
->(Element: E): TemplateFunction<E2, K2>
+interface TemplateFunctionFactory {
+    /* overload needed to minimize `union is too complex` errors
+when testing due to the size of the `IntrinsicElementsKeys` union */
+    <E extends TailwindComponent<E2, K2>, E2 extends IntrinsicElementsKeys, K2 extends object = {}>(
+        Element: E
+    ): TemplateFunction<E2, K2>
 
-function templateFunction<E extends TailwindComponent<any, any>>(
+    <E extends TailwindComponent<any, any>>(Element: E): TemplateFunction<
+        InnerTailwindComponent<E>,
+        InnerTailwindComponentOtherProps<E>
+    >
+
+    <E extends IntrinsicElementsKeys>(Element: E): TemplateFunction<E>
+
+    <E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
+}
+
+const templateFunction: TemplateFunctionFactory = <
+    E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
+>(
     Element: E
-): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>>
-
-function templateFunction<E extends IntrinsicElementsKeys>(Element: E): TemplateFunction<E>
-function templateFunction<E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
-
-function templateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>>(
-    Element: E
-): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>> {
+): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>> => {
     return <K extends object = {}>(
         template: TemplateStringsArray,
         ...templateElements: ((props: InnerTailwindComponentAllProps<E> & K) => string | undefined | null)[]
