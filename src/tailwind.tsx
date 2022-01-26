@@ -124,7 +124,7 @@ when testing due to the size of the `IntrinsicElementsKeys` union */
     <E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
 }
 
-const templateFunction: TemplateFunctionFactory = <
+const templateFunctionFactory: TemplateFunctionFactory = <
     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
 >(
     Element: E
@@ -176,18 +176,18 @@ const templateFunction: TemplateFunctionFactory = <
     }
 }
 
-export type IntrinsicElements = {
+export type IntrinsicElementsTemplateFunctionsMap = {
     [key in IntrinsicElementsKeys]: TemplateFunction<key>
 }
 
-const intrinsicElements: IntrinsicElements = domElements.reduce(
-    <K extends IntrinsicElementsKeys>(acc: IntrinsicElements, DomElement: K) => ({
+const intrinsicElementsMap: IntrinsicElementsTemplateFunctionsMap = domElements.reduce(
+    <K extends IntrinsicElementsKeys>(acc: IntrinsicElementsTemplateFunctionsMap, DomElement: K) => ({
         ...acc,
-        [DomElement]: templateFunction(DomElement)
+        [DomElement]: templateFunctionFactory(DomElement)
     }),
-    {} as IntrinsicElements
+    {} as IntrinsicElementsTemplateFunctionsMap
 )
 
-const tw = Object.assign(templateFunction, intrinsicElements)
+const tw = Object.assign(templateFunctionFactory, intrinsicElementsMap)
 
 export default tw
