@@ -13,8 +13,11 @@ export default () => {
 
     return (
         <Container>
-            <Title $bold={false} $large={true} $as={RedContainer}>
+            <Title $bold={false} $large={true}>
                 Hello
+            </Title>
+            <Title $bold={false} $large={false} $as={RedContainer}>
+                Hello, I'm a Title rendered as a RedContainer
             </Title>
             <Input onChange={onChange} onFocus={() => console.log(`focus`)} value={value} />
 
