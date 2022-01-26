@@ -71,10 +71,9 @@ interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElemen
 
 type NoInfer<T> = [T][T extends any ? 0 : never]
 
-export type TemplateFunction<
-    E extends React.ComponentType<any> | keyof JSX.IntrinsicElements,
-    K2 extends object = {}
-> = <K extends object = {}>(
+export type TemplateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys, K2 extends object = {}> = <
+    K extends object = {}
+>(
     template: TemplateStringsArray,
     ...templateElements: ((props: NoInfer<React.ComponentPropsWithRef<E> & K2> & K) => string | undefined | null)[]
 ) => TailwindComponent<E, K & K2>
@@ -83,7 +82,7 @@ interface ClassNameProp {
     className?: string | undefined
 }
 interface AsProp {
-    $as?: keyof JSX.IntrinsicElements | React.ComponentType<any>
+    $as?: IntrinsicElementsKeys | React.ComponentType<any>
 }
 type BaseProps = AsProp & ClassNameProp
 
@@ -102,11 +101,20 @@ type InnerTailwindComponentAllProps<
     ? React.ComponentPropsWithoutRef<E2> & K2 & React.RefAttributes<React.ComponentRef<E2> | undefined> // | undefined to fix types errors with useRef
     : React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined> // | undefined to fix types errors with useRef
 
+/* overload needed to minimize `union is too complex` errors
+when testing due to the size of the IntrinsicElementsKeys union */
+function templateFunction<
+    E extends TailwindComponent<E2, K2>,
+    E2 extends IntrinsicElementsKeys,
+    K2 extends object = {}
+>(Element: E): TemplateFunction<E2, K2>
+
 function templateFunction<E extends TailwindComponent<any, any>>(
     Element: E
 ): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>>
 
-function templateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys>(Element: E): TemplateFunction<E>
+function templateFunction<E extends IntrinsicElementsKeys>(Element: E): TemplateFunction<E>
+function templateFunction<E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
 
 function templateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>>(
     Element: E
@@ -159,11 +167,11 @@ function templateFunction<E extends React.ComponentType<any> | IntrinsicElements
 }
 
 export type IntrinsicElements = {
-    [key in keyof JSX.IntrinsicElements]: TemplateFunction<key>
+    [key in IntrinsicElementsKeys]: TemplateFunction<key>
 }
 
 const intrinsicElements: IntrinsicElements = domElements.reduce(
-    <K extends keyof JSX.IntrinsicElements>(acc: IntrinsicElements, DomElement: K) => ({
+    <K extends IntrinsicElementsKeys>(acc: IntrinsicElements, DomElement: K) => ({
         ...acc,
         [DomElement]: templateFunction(DomElement)
     }),
