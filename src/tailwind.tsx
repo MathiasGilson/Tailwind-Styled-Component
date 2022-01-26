@@ -32,7 +32,7 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
     ) as string // to remove "TAILWIND_STRING" type
 }
 
-// Removes call signatures i.e functions from Object types
+// Removes call signatures (i.e functions) from Object types
 type StripCallSignature<T> = { [K in keyof T]: T[K] }
 
 // needed for some reason, without it polymorphic $as props typing has issues - help requested
@@ -52,9 +52,9 @@ type TailwindComponentPropsWith$As<
 type TailwindExoticComponent<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
     K extends object
+    // call signatures in React.ForwardRefExoticComponent were interfering
 > = StripCallSignature<React.ForwardRefExoticComponent<TailwindComponentProps<E, K>>>
 
-// call signatures in React.ForwardRefExoticComponent were interfering
 interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object>
     extends TailwindExoticComponent<E, K> {
     (props: TailwindComponentProps<E, K> & { as?: never | undefined }): React.ReactElement<
@@ -69,6 +69,7 @@ interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElemen
     [isTwElement]: boolean
 }
 
+// Avoid unneccessary type inference
 type NoInfer<T> = [T][T extends any ? 0 : never]
 
 export type TemplateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys, K2 extends object = {}> = <
@@ -84,17 +85,22 @@ interface ClassNameProp {
 interface AsProp {
     $as?: IntrinsicElementsKeys | React.ComponentType<any>
 }
+
+// simple type alias
 type BaseProps = AsProp & ClassNameProp
 
 const removeTransientProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
+// Extracts inner tailwind component, e.g it extracts `"div"` from `TailwindComponent<"div", {$test1: string}>`
 type InnerTailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>> =
     E extends TailwindComponent<infer E2, any> ? E2 : E
 
+// Extracts inner tailwind component other props, e.g it extracts `{$test1: string}` from `TailwindComponent<"div", {$test1: string}>`
 type InnerTailwindComponentOtherProps<
     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
 > = E extends TailwindComponent<any, infer K2> ? K2 : {}
 
+// Extracts all inner tailwind component props, e.g it returns `React.ComponentProps<"div"> & {$test1: string}` from `TailwindComponent<"div", {$test1: string}>`
 type InnerTailwindComponentAllProps<
     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
 > = E extends TailwindComponent<infer E2, infer K2>
