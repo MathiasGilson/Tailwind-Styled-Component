@@ -47,7 +47,7 @@ type TailwindComponentPropsWith$As<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
     K extends object,
     As extends IntrinsicElementsKeys | React.ComponentType<any> = E
-> = SpreadUnion<React.ComponentPropsWithoutRef<E> & InnerTailwindComponentProps<As>> & K & { $as?: As }
+> = SpreadUnion<React.ComponentPropsWithoutRef<E> & InnerTailwindComponentAllProps<As>> & K & { $as?: As }
 
 type TailwindExoticComponent<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
@@ -82,6 +82,8 @@ interface ClassNameProp {
 interface AsProp {
     $as?: keyof JSX.IntrinsicElements | React.ComponentType<any>
 }
+type BaseProps = AsProp & ClassNameProp
+
 const filter$FromProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
 type InnerTailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>> =
@@ -91,54 +93,39 @@ type InnerTailwindComponentOtherProps<
     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
 > = E extends TailwindComponent<any, infer K2> ? K2 : {}
 
-type InnerTailwindComponentProps<
+type InnerTailwindComponentAllProps<
     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
 > = E extends TailwindComponent<infer E2, infer K2>
-    ? React.ComponentPropsWithoutRef<E2> & K2 & React.RefAttributes<React.ComponentRef<E2> | undefined>
-    : React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined>
+    ? React.ComponentPropsWithoutRef<E2> & K2 & React.RefAttributes<React.ComponentRef<E2> | undefined> // | undefined to fix types errors with useRef
+    : React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined> // | undefined to fix types errors with useRef
 
-function templateFunction<
-    E extends TailwindComponent<E2, K2>,
-    E2 extends IntrinsicElementsKeys,
-    K2 extends object = {}
->(Element: E): TemplateFunction<InnerTailwindComponent<E2>, InnerTailwindComponentOtherProps<E>>
 function templateFunction<E extends TailwindComponent<any, any>>(
     Element: E
 ): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>>
 
-function templateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys>(Element: E): TemplateFunction<E>
+function templateFunction<E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
 
 function templateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>>(
     Element: E
 ): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>> {
     return <K extends object = {}>(
         template: TemplateStringsArray,
-        ...templateElements: ((
-            props: React.ComponentPropsWithRef<InnerTailwindComponent<E>> & K & InnerTailwindComponentOtherProps<E>
-        ) => string | undefined | null)[]
+        ...templateElements: ((props: InnerTailwindComponentAllProps<E> & K) => string | undefined | null)[]
     ) => {
-        const result: any = React.forwardRef<
+        const TwComponent: any = React.forwardRef<
             InnerTailwindComponent<E>,
-            TailwindComponentProps<InnerTailwindComponent<E>, K & InnerTailwindComponentOtherProps<E>> &
-                AsProp &
-                ClassNameProp
+            InnerTailwindComponentAllProps<E> & K & BaseProps
         >(({ $as, ...props }, ref) => {
             // change Element when `$as` prop detected
             const FinalElement = $as || Element
 
             // filter out props that starts with "$" props except when styling a tailwind-styled-component
-            const filteredProps: React.ComponentProps<InnerTailwindComponent<E>> &
-                K &
-                InnerTailwindComponentOtherProps<E> =
+            const filteredProps: InnerTailwindComponentAllProps<E> & K =
                 FinalElement[isTwElement] === true
-                    ? (props as React.ComponentProps<InnerTailwindComponent<E>> &
-                          K &
-                          InnerTailwindComponentOtherProps<E>)
-                    : (Object.fromEntries(Object.entries(props).filter(filter$FromProps)) as React.ComponentProps<
-                          InnerTailwindComponent<E>
-                      > &
-                          K &
-                          InnerTailwindComponentOtherProps<E>)
+                    ? (props as InnerTailwindComponentAllProps<E> & K)
+                    : (Object.fromEntries(
+                          Object.entries(props).filter(filter$FromProps)
+                      ) as InnerTailwindComponentAllProps<E> & K)
             return (
                 <FinalElement
                     // forward props
@@ -149,11 +136,7 @@ function templateFunction<E extends React.ComponentType<any> | IntrinsicElements
                     className={cleanTemplate(
                         mergeArrays(
                             template,
-                            templateElements.map((t) =>
-                                t({ ...props, $as } as React.ComponentPropsWithRef<InnerTailwindComponent<E>> &
-                                    K &
-                                    InnerTailwindComponentOtherProps<E>)
-                            )
+                            templateElements.map((t) => t({ ...props, $as } as InnerTailwindComponentAllProps<E> & K))
                         ),
                         props.className
                     )}
@@ -161,14 +144,14 @@ function templateFunction<E extends React.ComponentType<any> | IntrinsicElements
             )
         })
         // symbol identifier for detecting tailwind-styled-components
-        result[isTwElement] = true
+        TwComponent[isTwElement] = true
         // This enables the react tree to show a name in devtools, much better debugging experience Note: Far from perfect, better implementations welcome
         if (typeof Element !== "string") {
-            result.displayName = Element.displayName || Element.name || "tw.Component"
+            TwComponent.displayName = Element.displayName || Element.name || "tw.Component"
         } else {
-            result.displayName = "tw." + Element
+            TwComponent.displayName = "tw." + Element
         }
-        return result
+        return TwComponent
     }
 }
 
@@ -179,7 +162,7 @@ export type IntrinsicElements = {
 const intrinsicElements: IntrinsicElements = domElements.reduce(
     <K extends keyof JSX.IntrinsicElements>(acc: IntrinsicElements, DomElement: K) => ({
         ...acc,
-        [DomElement]: templateFunction(DomElement)
+        [DomElement]: templateFunction(DomElement as any)
     }),
     {} as IntrinsicElements
 )
