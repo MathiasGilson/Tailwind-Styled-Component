@@ -17,7 +17,7 @@ export default () => {
                 Hello
             </Title>
             <Title $bold={false} $large={false} $as={RedContainer}>
-                Hello, I'm a Title rendered as a RedContainer
+                Hello, I'm a Title rendered as a RedContainer, Polymorphism!
             </Title>
             <Input onChange={onChange} onFocus={() => console.log(`focus`)} value={value} />
 
