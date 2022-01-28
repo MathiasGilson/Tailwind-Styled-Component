@@ -14,11 +14,13 @@
     ],
     "description": "Create tailwind css react components like styled components with classes name on multiple lines",
     "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "files": [
         "dist/**/*"
     ],
     "scripts": {
         "build": "tsc",
+        "postbuild": "yarn run test",
         "dev": "tsc -w",
         "clean": "rimraf dist",
         "test": "jest",
@@ -38,6 +40,7 @@
         "@types/react": "^17.0.38",
         "@typescript-eslint/eslint-plugin": "^5.9.0",
         "@typescript-eslint/parser": "^5.9.0",
+        "esbuild": "^0.14.11",
         "eslint": "^8.6.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
