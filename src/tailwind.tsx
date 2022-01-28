@@ -55,7 +55,7 @@ type TailwindExoticComponent<
     // call signatures in React.ForwardRefExoticComponent were interfering
 > = StripCallSignature<React.ForwardRefExoticComponent<TailwindComponentProps<E, K>>>
 
-interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object>
+export interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object>
     extends TailwindExoticComponent<E, K> {
     (props: TailwindComponentProps<E, K> & { as?: never | undefined }): React.ReactElement<
         TailwindComponentProps<E, K>
