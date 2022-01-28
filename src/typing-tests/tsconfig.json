@@ -3,7 +3,7 @@
     "compilerOptions": {
         "noEmit": true,
         "noUnusedLocals": false,
-        "strict": true
+        "strict": false
     },
     "include": ["*.typing.tsx", "*.typing.ts"],
     "exclude": []
