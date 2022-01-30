@@ -3,6 +3,11 @@ import tw from "../tailwind"
 import React from "react"
 import { expectExactAny, expectExactType, expectNotAny, expectType } from "./test-types"
 
+const Divvy2 = tw("div")<{ $test1: string }>`
+        text-black
+        `
+const RedDiv = tw(Divvy2)`bg-red-500`
+
 const Div = tw.div``
 const H1 = tw.h1``
 const A = tw.a``
@@ -57,10 +62,10 @@ const TG = (props: { gar: number }) => <div>{props.gar}</div>
 
 const TR = tw(TG)``
 
-const Divvy = tw.div<{ $test1: string }>`
-        text-black
-        `
-const RedDiv = tw(Divvy)`bg-red-500`
+// const Divvy = tw.div<{ $test1: string }>`
+//         text-black
+//         `
+// const RedDiv = tw(Divvy)`bg-red-500`
 
 const AsDiv = <RedDiv $as="div" $test1="true" />
 // @ts-expect-error
