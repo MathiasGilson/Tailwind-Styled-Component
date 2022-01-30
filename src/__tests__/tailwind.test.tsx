@@ -163,6 +163,21 @@ describe("tw", () => {
         expect(asFragment()).toMatchSnapshot()
     })
 
+    it("$as props polymorphism should work with class component", () => {
+        class TestComp extends React.Component<TestCompProps> {
+            render() {
+                return <div className={this.props.className}>{this.props.children}</div>
+            }
+        }
+        const TestCompStyled = tw(TestComp)`bg-gray-400`
+        const { asFragment } = render(
+            <TestCompStyled $as="a" href="http://###">
+                test
+            </TestCompStyled>
+        )
+        expect(asFragment()).toMatchSnapshot()
+    })
+
     it("should render Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
@@ -181,6 +196,21 @@ describe("tw", () => {
         const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const { asFragment } = render(<Div $as={Nav} $test1="true" $isVertical={true} />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+    it("should render base class component as component in `$as` prop: test 1", () => {
+        class TestComp extends React.Component<TestCompProps> {
+            render() {
+                return <div className={this.props.className}>{this.props.children}</div>
+            }
+        }
+        const ClassDiv = tw(TestComp)<{ $test1: string }>`
+        text-black
+        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        `
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
+            p.$isVertical === true ? "flex-col h-full w-20" : ""}`
+        const { asFragment } = render(<ClassDiv $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
     })
 
