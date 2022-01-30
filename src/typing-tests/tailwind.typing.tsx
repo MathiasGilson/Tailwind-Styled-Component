@@ -62,10 +62,10 @@ const TG = (props: { gar: number }) => <div>{props.gar}</div>
 
 const TR = tw(TG)``
 
-// const Divvy = tw.div<{ $test1: string }>`
-//         text-black
-//         `
-// const RedDiv = tw(Divvy)`bg-red-500`
+const Divvy = tw.div<{ $test1: string }>`
+        text-black
+        `
+const RedDiv2 = tw(Divvy)`bg-red-500`
 
 const AsDiv = <RedDiv $as="div" $test1="true" />
 // @ts-expect-error
