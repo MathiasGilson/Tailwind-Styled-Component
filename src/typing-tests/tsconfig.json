@@ -2,8 +2,8 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "noEmit": true,
-        "noUnusedLocals": false
-        // "strict": true,
+        "noUnusedLocals": false,
+        "strict": false
     },
     "include": ["*.typing.tsx", "*.typing.ts"],
     "exclude": []

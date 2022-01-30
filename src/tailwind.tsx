@@ -72,6 +72,7 @@ export type TailwindExoticComponent<
     /** call signatures in React.ForwardRefExoticComponent were interfering */
 > = StripCallSignature<React.ForwardRefExoticComponent<TailwindComponentProps<E, K>>>
 
+
 /**
  * An interface represent a component styled by tailwind-styled-components
  *
