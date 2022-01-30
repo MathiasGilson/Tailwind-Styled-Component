@@ -38,10 +38,10 @@ type StripCallSignature<T> = { [K in keyof T]: T[K] }
 // needed for some reason, without it polymorphic $as props typing has issues - help requested
 type SpreadUnion<U> = U extends any ? { [K in keyof U]: U[K] } : never
 
-type TailwindComponentProps<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object> = SpreadUnion<
-    React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined>
-> &
-    K
+export type TailwindComponentProps<
+    E extends React.ComponentType<any> | IntrinsicElementsKeys,
+    K extends object
+> = SpreadUnion<React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined>> & K
 
 type TailwindComponentPropsWith$As<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
@@ -55,7 +55,7 @@ type TailwindExoticComponent<
     // call signatures in React.ForwardRefExoticComponent were interfering
 > = StripCallSignature<React.ForwardRefExoticComponent<TailwindComponentProps<E, K>>>
 
-interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object>
+export interface TailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys, K extends object>
     extends TailwindExoticComponent<E, K> {
     (props: TailwindComponentProps<E, K> & { as?: never | undefined }): React.ReactElement<
         TailwindComponentProps<E, K>
@@ -107,7 +107,7 @@ type InnerTailwindComponentAllProps<
     ? React.ComponentPropsWithoutRef<E2> & K2 & React.RefAttributes<React.ComponentRef<E2> | undefined> // | undefined to fix types errors with useRef
     : React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined> // | undefined to fix types errors with useRef
 
-interface TemplateFunctionFactory {
+export interface TemplateFunctionFactory {
     /* overload needed to minimize `union is too complex` errors
 when testing due to the size of the `IntrinsicElementsKeys` union */
     <E extends TailwindComponent<E2, K2>, E2 extends IntrinsicElementsKeys, K2 extends object = {}>(
