@@ -36,20 +36,24 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
 type StripCallSignature<T> = { [K in keyof T]: T[K] }
 
 // needed for some reason, without it polymorphic $as props typing has issues - help requested
-type SpreadUnion<U> = U extends any ? { [K in keyof U]: U[K] } : never
+// type SpreadUnion<U> = U extends any ? { [K in keyof U]: U[K] } : never
 
 export type TailwindComponentProps<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
     K extends object
-> = SpreadUnion<React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined>> & K
+
+    // `X extends any ?` needed to spread union types and minimise complex union errors from exponential spreading
+> = K extends any
+    ? React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined> & K
+    : never
 
 type TailwindComponentPropsWith$As<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
     K extends object,
     As extends IntrinsicElementsKeys | React.ComponentType<any> = E
-> = SpreadUnion<React.ComponentPropsWithoutRef<E> & InnerTailwindComponentAllProps<As>> & K & { $as?: As }
+> = TailwindComponentProps<E, K> & InnerTailwindComponentAllProps<As> & { $as?: As }
 
-type TailwindExoticComponent<
+export type TailwindExoticComponent<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
     K extends object
     // call signatures in React.ForwardRefExoticComponent were interfering
