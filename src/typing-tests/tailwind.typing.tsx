@@ -3,36 +3,50 @@ import tw from "../tailwind"
 import React from "react"
 import { expectExactAny, expectExactType, expectNotAny, expectType } from "./test-types"
 
+const Divvy2 = tw("div")<{ $test1: string }>`
+        text-black
+        `
+const RedDiv = tw(Divvy2)`bg-red-500`
+
 const Div = tw.div``
 const H1 = tw.h1``
 const A = tw.a``
 
-// @ts-expect-error
-const dfsdfe = <Div href="/" />
+/**Test: Properly gives a type error when wrong props are used */
+{
+    // @ts-expect-error
+    const Test1 = <Div href="/" />
+    // @ts-expect-error
+    const Test2 = Div({ href: "/" })
+}
 
-const dfsdfe2 = <Div $as="a" href="/" />
-// @ts-expect-error
-const dfsdfe2b = <Div $as="div" href="/" />
-// @ts-expect-error
-const dfsdfe3 = <Div $as={Div} href="/" />
-// @ts-expect-error
-const dfsdfe3b2 = Div({ $as: "div", href: "/" })
-// @ts-expect-error
-const dfsdfe3b2n = Div({ href: "/" })
-// @ts-expect-error
-const dfsdfe3a = <Div $as={H1} href="/" />
-const dfsdfe3b = <Div $as="a" href="/" />
+/**Test: props are type cast properly with $as prop */
+{
+    const Test1 = <Div $as="a" href="/" />
+    const Test2 = <Div $as={A} href="/" />
+}
 
-const dfsdfe3c = <Div $as={A} href="/" />
+/** Test: types error for wrong props with $as prop */
+{
+    // @ts-expect-error
+    const dfsdfe2b = <Div $as="div" href="/" />
+    // @ts-expect-error
+    const dfsdfe3 = <Div $as={Div} href="/" />
+    // @ts-expect-error
+    const dfsdfe3b2 = Div({ $as: "div", href: "/" })
+    // @ts-expect-error
+    const dfsdfe3a = <Div $as={H1} href="/" />
+}
 
-const C1 = (props: { className: string; booleanProp?: boolean }) => <div children={props.booleanProp} />
-const C2 = () => <div />
+/** Has className prop and optional booleanProp */
+const Component1 = (props: { className: string; booleanProp?: boolean }) => <div children={props.booleanProp} />
+const Component2 = () => <div />
 const C3 = (props: { booleanProp: boolean }) => <div children={props.booleanProp} />
 const C4 = (props: { booleanProp: boolean; children?: string }) => <div children={props.booleanProp} />
 const C5 = (props: React.PropsWithChildren<{ booleanProp: boolean }>) => <div children={props.booleanProp} />
 
 const T = tw.div``
-const HasClassName = tw(C1)``
+const HasClassName = tw(Component1)``
 const HasClassNameAndBoolean = tw(C3)`
 h-full
 `
@@ -51,7 +65,7 @@ expectType<{ booleanProp: boolean } & { children: React.ReactNode }>(result)
 
 // type P =
 
-const NoProps = tw(C2)``
+const NoProps = tw(Component2)``
 
 const TG = (props: { gar: number }) => <div>{props.gar}</div>
 
@@ -60,7 +74,7 @@ const TR = tw(TG)``
 const Divvy = tw.div<{ $test1: string }>`
         text-black
         `
-const RedDiv = tw(Divvy)`bg-red-500`
+const RedDiv2 = tw(Divvy)`bg-red-500`
 
 const AsDiv = <RedDiv $as="div" $test1="true" />
 // @ts-expect-error
@@ -103,11 +117,11 @@ type TTTTT = React.ComponentPropsWithRef<typeof HasClassName>
 
 const sfdkj3 = (
     <T
-        $as={C1}
+        $as={Component1}
         className=""
         booleanProp={true}
         // onChange= () => {}}
     />
 )
 // @ts-expect-error
-const sfd4 = <T $as={C1} className="" css="true" />
+const sfd4 = <T $as={Component1} className="" css="true" />

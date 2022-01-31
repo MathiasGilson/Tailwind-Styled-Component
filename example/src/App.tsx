@@ -52,6 +52,7 @@ const Anchor = styled(TwAnchor)<{ $active?: boolean }>`
     color: ${(props) => (props.$active ? "red" : "blue")};
 `
 
+
 const Input = tw.input``
 
 const Container = tw.div`
@@ -63,6 +64,10 @@ const DefaultContainer = tw.div<{ $bold?: boolean }>`
 
     flex
     items-center
+`
+
+const StyledContainer = styled(DefaultContainer)<{ $active?: boolean }>`
+    color: ${(props) => (props.$active ? "red" : "blue")};
 `
 
 const RedContainer = tw(DefaultContainer)`
