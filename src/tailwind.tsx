@@ -93,7 +93,7 @@ export interface TailwindComponent<E extends React.ComponentType<any> | Intrinsi
 
     withStyles: <S extends object = {}>(
         styles: CSSProperties | ((p: NoInfer<React.ComponentPropsWithRef<E> & K> & S) => CSSProperties)
-    ) => any
+    ) => TailwindComponent<E, K & S>
 
     /**  for easier type narrowing of TailwindComponent */
     [isTwElement]: boolean
@@ -177,66 +177,63 @@ export interface TemplateFunctionFactory {
     <E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
 }
 
-const templateFunctionFactory: TemplateFunctionFactory = <
-    E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
->(
+const templateFunctionFactory: TemplateFunctionFactory = <E extends React.ComponentType<any> | IntrinsicElementsKeys>(
     Element: E
-): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>> => {
-    const templateFunctionConstructor = <S extends object = {}>(
-        baseStyle: CSSProperties | ((p: InnerTailwindComponentAllProps<E> & S) => CSSProperties) = {}
-    ): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E> & S> => {
-        const templateFunction = <K extends object = {}>(
-            template: TemplateStringsArray,
-            ...templateElements: ((props: InnerTailwindComponentAllProps<E> & S & K) => string | undefined | null)[]
+): TemplateFunction<E, {}> => {
+    return <K extends object = {}>(
+        template: TemplateStringsArray,
+        ...templateElements: ((props: React.ComponentPropsWithRef<E> & K) => string | undefined | null)[]
+    ) => {
+        const renderFunctionConstructor = (
+            baseStyle: CSSProperties | ((p: React.ComponentPropsWithRef<E> & K) => CSSProperties) = {}
         ) => {
-            const renderFunction = (
-                baseProps: React.PropsWithChildren<InnerTailwindComponentAllProps<E> & K & AsProp & ClassNameProp>,
-                ref: React.ForwardedRef<InnerTailwindComponent<E>>
-            ): JSX.Element => {
-                const { $as, style = {}, ...props } = baseProps
+            // const renderFunction =
+            const TwComponent: TailwindComponent<E, K> = React.forwardRef(
+                (
+                    baseProps: React.ComponentPropsWithRef<E> & K & BaseProps,
+                    ref: React.ForwardedRef<E>
+                ): JSX.Element => {
+                    const { $as, style = {}, ...props } = baseProps
 
-                // change Element when `$as` prop detected
-                const FinalElement = $as || Element
+                    // change Element when `$as` prop detected
+                    const FinalElement = $as || Element
 
-                const finalStyles: CSSProperties = Object.assign(
-                    {},
-                    typeof baseStyle === "function" ? baseStyle(baseProps) : baseStyle,
-                    style
-                )
+                    const finalStyles: CSSProperties = Object.assign(
+                        {},
+                        typeof baseStyle === "function" ? baseStyle(baseProps) : baseStyle,
+                        style
+                    )
 
-                // const style = TwComponent.style(props)
+                    // const style = TwComponent.style(props)
 
-                // filter out props that starts with "$" props except when styling a tailwind-styled-component
-                const filteredProps: InnerTailwindComponentAllProps<E> & K =
-                    FinalElement[isTwElement] === true
-                        ? (props as InnerTailwindComponentAllProps<E> & K)
-                        : (Object.fromEntries(
-                              Object.entries(props).filter(removeTransientProps)
-                          ) as InnerTailwindComponentAllProps<E> & K)
-                return (
-                    <FinalElement
-                        // forward props
-                        {...filteredProps}
-                        style={finalStyles}
-                        // forward ref
-                        ref={ref}
-                        // set class names
-                        className={cleanTemplate(
-                            mergeArrays(
-                                template,
-                                templateElements.map((t) =>
-                                    t({ ...props, $as } as InnerTailwindComponentAllProps<E> & K)
-                                )
-                            ),
-                            props.className
-                        )}
-                    />
-                )
-            }
-            const TwComponent: any = React.forwardRef<
-                InnerTailwindComponent<E>,
-                InnerTailwindComponentAllProps<E> & K & BaseProps
-            >(renderFunction)
+                    // filter out props that starts with "$" props except when styling a tailwind-styled-component
+                    const filteredProps: React.ComponentPropsWithRef<E> & K =
+                        FinalElement[isTwElement] === true
+                            ? (props as React.ComponentPropsWithRef<E> & K)
+                            : (Object.fromEntries(
+                                  Object.entries(props).filter(removeTransientProps)
+                              ) as React.ComponentPropsWithRef<E> & K)
+                    return (
+                        <FinalElement
+                            // forward props
+                            {...filteredProps}
+                            style={finalStyles}
+                            // forward ref
+                            ref={ref}
+                            // set class names
+                            className={cleanTemplate(
+                                mergeArrays(
+                                    template,
+                                    templateElements.map((t) =>
+                                        t({ ...props, $as } as React.ComponentPropsWithRef<E> & K)
+                                    )
+                                ),
+                                props.className
+                            )}
+                        />
+                    )
+                }
+            ) as any
             // symbol identifier for detecting tailwind-styled-components
             TwComponent[isTwElement] = true
             // This enables the react tree to show a name in devtools, much better debugging experience Note: Far from perfect, better implementations welcome
@@ -245,18 +242,14 @@ const templateFunctionFactory: TemplateFunctionFactory = <
             } else {
                 TwComponent.displayName = "tw." + Element
             }
+            TwComponent.withStyles = <S extends object = {}>(
+                styles: ((p: React.ComponentPropsWithRef<E> & S) => CSSProperties) | CSSProperties
+            ) => renderFunctionConstructor(styles)
 
             return TwComponent
         }
-        templateFunction.withStyles = <S extends object = {}>(
-            style: CSSProperties | ((p: InnerTailwindComponentAllProps<E> & S) => CSSProperties) = {}
-        ) => templateFunctionConstructor(style)
-        return templateFunction
+        return renderFunctionConstructor()
     }
-
-    // const templateFunction = Object.assign(templateFunctionConstructor(), {withStyles})
-
-    return templateFunctionConstructor()
 }
 
 export type IntrinsicElementsTemplateFunctionsMap = {
