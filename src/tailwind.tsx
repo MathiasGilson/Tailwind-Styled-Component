@@ -184,8 +184,8 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
         template: TemplateStringsArray,
         ...templateElements: ((props: React.ComponentPropsWithRef<E> & K) => string | undefined | null)[]
     ) => {
-        const renderFunctionConstructor = (
-            baseStyle: CSSProperties | ((p: React.ComponentPropsWithRef<E> & K) => CSSProperties) = {}
+        const TwComponentConstructor = (
+            styleArray: (CSSProperties | ((p: React.ComponentPropsWithRef<E> & K) => CSSProperties))[] = []
         ) => {
             // const renderFunction =
             const TwComponent: TailwindComponent<E, K> = React.forwardRef(
@@ -198,12 +198,11 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
                     // change Element when `$as` prop detected
                     const FinalElement = $as || Element
 
-                    const finalStyles: CSSProperties = Object.assign(
-                        {},
-                        typeof baseStyle === "function" ? baseStyle(baseProps) : baseStyle,
-                        style
+                    const finalStyles: CSSProperties = styleArray.reduce<CSSProperties>(
+                        (acc, intStyle) =>
+                            Object.assign(acc, typeof intStyle === "function" ? intStyle(baseProps) : intStyle),
+                        {} as CSSProperties
                     )
-
                     // const style = TwComponent.style(props)
 
                     // filter out props that starts with "$" props except when styling a tailwind-styled-component
@@ -244,11 +243,11 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
             }
             TwComponent.withStyles = <S extends object = {}>(
                 styles: ((p: React.ComponentPropsWithRef<E> & S) => CSSProperties) | CSSProperties
-            ) => renderFunctionConstructor(styles)
+            ) => TwComponentConstructor(styleArray.concat(styles))
 
             return TwComponent
         }
-        return renderFunctionConstructor()
+        return TwComponentConstructor()
     }
 }
 
