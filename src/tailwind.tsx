@@ -198,7 +198,7 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
                     // change Element when `$as` prop detected
                     const FinalElement = $as || Element
 
-                    const finalStyles: CSSProperties = styleArray.reduce<CSSProperties>(
+                    const baseStyles: CSSProperties = styleArray.reduce<CSSProperties>(
                         (acc, intStyle) =>
                             Object.assign(acc, typeof intStyle === "function" ? intStyle(baseProps) : intStyle),
                         {} as CSSProperties
@@ -216,7 +216,7 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
                         <FinalElement
                             // forward props
                             {...filteredProps}
-                            style={finalStyles}
+                            style={{ ...baseStyles, ...style }}
                             // forward ref
                             ref={ref}
                             // set class names
