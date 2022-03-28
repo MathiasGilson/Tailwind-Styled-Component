@@ -80,6 +80,12 @@ describe("tw", () => {
         expect(TwTestComponent.displayName).toBe("TestComponent")
     })
 
+    it("matches snapshot with overriden classNames", () => {
+        const CustomDiv = tw.div`bg-gray-400 px-5`
+        const { asFragment } = render(<CustomDiv className='bg-blue-500 p-2' />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+
     it("matches snapshot with intrinsic element", () => {
         const Div = tw.div`bg-gray-400`
         const { asFragment } = render(<Div>test</Div>)

@@ -58,6 +58,6 @@
         "react-dom": ">= 16.8.0"
     },
     "dependencies": {
-        "tailwindcss-classnames": "^3.0.1"
+        "tailwind-merge": "^1.2.0"
     }
 }

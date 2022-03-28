@@ -205,8 +205,6 @@ Will be rendered as
 </div>
 ```
 
-*Careful it does not overrides parent classes*
-
 ### Extends Styled Component
 
 Extend [styled components](https://github.com/styled-components/styled-components)
