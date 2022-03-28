@@ -1,6 +1,6 @@
 import React from "react"
 import domElements from "./domElements"
-import { classnames } from "tailwindcss-classnames"
+import { twMerge } from "tailwind-merge"
 
 const isTwElement = Symbol("isTwElement?")
 
@@ -24,12 +24,12 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
 
     const inheritedClassesArray: string[] = inheritedClasses ? inheritedClasses.split(" ") : []
 
-    return classnames(
+    return twMerge(
         ...(newClasses as any)
             .concat(inheritedClassesArray) // add new classes
             .filter((c: string) => c !== " ") // remove empty classes
             .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
-    ) as string // to remove "TAILWIND_STRING" type
+    )
 }
 
 /** Removes call signatures (i.e functions) from Object types */
