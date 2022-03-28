@@ -24,7 +24,7 @@
         "dev": "tsc -w",
         "clean": "rimraf dist",
         "pretest": "jest --clearCache",
-        "test": "jest --colors --verbose --bail",
+        "test": "jest -w 1",
         "test:types": "tsc -p ./src/typing-tests/tsconfig.json",
         "posttest": "yarn run test:types",
         "prepublishOnly": "npm run clean && npm run build"
