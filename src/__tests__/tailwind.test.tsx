@@ -80,9 +80,16 @@ describe("tw", () => {
         expect(TwTestComponent.displayName).toBe("TestComponent")
     })
 
-    it("matches snapshot with overriden classNames", () => {
+    it("matches snapshot with overridden classNames", () => {
         const CustomDiv = tw.div`bg-gray-400 px-5`
-        const { asFragment } = render(<CustomDiv className='bg-blue-500 p-2' />)
+        const { asFragment } = render(<CustomDiv className="bg-blue-500 p-2" />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+
+    it("matches snapshot with overridden classNames where child conflicting props win", () => {
+        const Parent = tw.div`p-5`
+        const Child = tw(Parent)`p-4`
+        const { asFragment } = render(<Child />)
         expect(asFragment()).toMatchSnapshot()
     })
 

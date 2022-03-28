@@ -25,10 +25,9 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
     const inheritedClassesArray: string[] = inheritedClasses ? inheritedClasses.split(" ") : []
 
     return twMerge(
-        ...(newClasses as any)
-            .concat(inheritedClassesArray) // add new classes
+        ...newClasses
+            .concat(inheritedClassesArray) // add new classes to inherited classes
             .filter((c: string) => c !== " ") // remove empty classes
-            .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
     )
 }
 
@@ -71,7 +70,6 @@ export type TailwindExoticComponent<
     K extends object
     /** call signatures in React.ForwardRefExoticComponent were interfering */
 > = StripCallSignature<React.ForwardRefExoticComponent<TailwindComponentProps<E, K>>>
-
 
 /**
  * An interface represent a component styled by tailwind-styled-components

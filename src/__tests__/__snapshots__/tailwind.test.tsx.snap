@@ -41,10 +41,18 @@ exports[`tw matches snapshot with intrinsic element 1`] = `
 </DocumentFragment>
 `;
 
-exports[`tw matches snapshot with overriden classNames 1`] = `
+exports[`tw matches snapshot with overridden classNames 1`] = `
 <DocumentFragment>
   <div
     class="bg-blue-500 p-2"
+  />
+</DocumentFragment>
+`;
+
+exports[`tw matches snapshot with overridden classNames where child conflicting props win 1`] = `
+<DocumentFragment>
+  <div
+    class="p-4"
   />
 </DocumentFragment>
 `;
