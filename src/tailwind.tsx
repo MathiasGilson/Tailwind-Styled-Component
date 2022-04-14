@@ -103,24 +103,13 @@ type NoInfer<T> = [T][T extends any ? 0 : never]
  * @export
  * @interface TemplateFunction
  * @template E
- * @template K2
  */
-export interface TemplateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys, K2 extends object = {}> {
+export interface TemplateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys> {
     <K extends object = {}>(
         template: TemplateStringsArray,
-        ...templateElements: ((props: NoInfer<React.ComponentPropsWithRef<E> & K2> & K) => string | undefined | null)[]
-    ): TailwindComponent<E, K & K2>
+        ...templateElements: ((props: NoInfer<React.ComponentPropsWithRef<E>> & K) => string | undefined | null)[]
+    ): TailwindComponent<E, K>
 }
-
-interface ClassNameProp {
-    className?: string | undefined
-}
-interface AsProp {
-    $as?: IntrinsicElementsKeys | React.ComponentType<any>
-}
-
-// simple type alias
-type BaseProps = AsProp & ClassNameProp
 
 /**
  * A utility function that strips out transient props from a [key,value] array of props
@@ -132,21 +121,21 @@ const removeTransientProps = ([key]: [string, any]): boolean => key.charAt(0) !=
 
 /** Extracts inner tailwind component,
  * e.g it extracts `"div"` from `TailwindComponent<"div", {$test1: string}>` */
-type InnerTailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>> =
-    E extends TailwindComponent<infer E2, any> ? E2 : E
+// type InnerTailwindComponent<E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>> =
+//     E extends TailwindComponent<infer E2, any> ? E2 : E
 
 /**Extracts inner tailwind component other props,
  * e.g it extracts `{$test1: string}` from `TailwindComponent<"div", {$test1: string}>` */
-type InnerTailwindComponentOtherProps<
-    E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
-> = E extends TailwindComponent<any, infer K2> ? K2 : {}
+// type InnerTailwindComponentOtherProps<
+//     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
+// > = {}
 
 /**Extracts all inner tailwind component props,
  * e.g it returns `React.ComponentProps<"div"> & {$test1: string}` from `TailwindComponent<"div", {$test1: string}>`*/
 type InnerTailwindComponentAllProps<
     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
-> = E extends TailwindComponent<infer E2, infer K2>
-    ? React.ComponentPropsWithoutRef<E2> & K2 & React.RefAttributes<React.ComponentRef<E2> | undefined> // | undefined to fix types errors with useRef
+> = E extends TailwindComponent<infer E2, any>
+    ? React.ComponentPropsWithoutRef<E2> & React.RefAttributes<React.ComponentRef<E2> | undefined> // | undefined to fix types errors with useRef
     : React.ComponentPropsWithoutRef<E> & React.RefAttributes<React.ComponentRef<E> | undefined> // | undefined to fix types errors with useRef
 
 /**
@@ -158,43 +147,30 @@ type InnerTailwindComponentAllProps<
 export interface TemplateFunctionFactory {
     /** overload needed to minimize `union is too complex` errors
      * when testing due to the size of the `IntrinsicElementsKeys` union */
-    <E extends TailwindComponent<E2, K2>, E2 extends IntrinsicElementsKeys, K2 extends object = {}>(
-        Element: E
-    ): TemplateFunction<E2, K2>
+    <E extends TailwindComponent<E2, any>, E2 extends IntrinsicElementsKeys>(Element: E): TemplateFunction<E2>
 
-    <E extends TailwindComponent<any, any>>(Element: E): TemplateFunction<
-        InnerTailwindComponent<E>,
-        InnerTailwindComponentOtherProps<E>
-    >
+    <E extends TailwindComponent<any, any>>(Element: E): TemplateFunction<any>
 
     <E extends IntrinsicElementsKeys>(Element: E): TemplateFunction<E>
 
     <E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
 }
 
-const templateFunctionFactory: TemplateFunctionFactory = <
+const templateFunctionFactory: any = <
     E extends React.ComponentType<any> | IntrinsicElementsKeys | TailwindComponent<any, any>
 >(
     Element: E
-): TemplateFunction<InnerTailwindComponent<E>, InnerTailwindComponentOtherProps<E>> => {
-    return <K extends object = {}>(
-        template: TemplateStringsArray,
-        ...templateElements: ((props: InnerTailwindComponentAllProps<E> & K) => string | undefined | null)[]
-    ) => {
-        const TwComponent: any = React.forwardRef<
-            InnerTailwindComponent<E>,
-            InnerTailwindComponentAllProps<E> & K & BaseProps
-        >(({ $as, ...props }, ref) => {
+): TemplateFunction<any> => {
+    return (template: TemplateStringsArray, ...templateElements: ((props: any) => string | undefined | null)[]) => {
+        const TwComponent: any = React.forwardRef<any, any>(({ $as, ...props }, ref) => {
             // change Element when `$as` prop detected
             const FinalElement = $as || Element
 
             // filter out props that starts with "$" props except when styling a tailwind-styled-component
-            const filteredProps: InnerTailwindComponentAllProps<E> & K =
+            const filteredProps: any =
                 FinalElement[isTwElement] === true
-                    ? (props as InnerTailwindComponentAllProps<E> & K)
-                    : (Object.fromEntries(
-                          Object.entries(props).filter(removeTransientProps)
-                      ) as InnerTailwindComponentAllProps<E> & K)
+                    ? (props as any)
+                    : (Object.fromEntries(Object.entries(props).filter(removeTransientProps)) as any)
             return (
                 <FinalElement
                     // forward props
@@ -205,7 +181,7 @@ const templateFunctionFactory: TemplateFunctionFactory = <
                     className={cleanTemplate(
                         mergeArrays(
                             template,
-                            templateElements.map((t) => t({ ...props, $as } as InnerTailwindComponentAllProps<E> & K))
+                            templateElements.map((t) => t({ ...props, $as } as any))
                         ),
                         props.className
                     )}
