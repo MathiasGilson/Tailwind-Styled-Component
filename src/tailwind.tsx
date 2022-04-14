@@ -51,7 +51,7 @@ export type TailwindComponentProps<
     E extends React.ComponentType<any> | IntrinsicElementsKeys,
     K extends object
 
-    /**  `X extends any ?` needed to distribute union types and minimise complex union errors from exponential spreading */
+    /**  `X extends any ?` needed to distribute union types and minimize complex union errors from exponential spreading */
 > = K extends any
     ? React.ComponentPropsWithoutRef<E> &
           React.RefAttributes<React.ComponentRef<E> | undefined> &
@@ -94,7 +94,7 @@ export interface TailwindComponent<E extends React.ComponentType<any> | Intrinsi
     [isTwElement]: boolean
 }
 
-/**  Avoid unneccessary type inference */
+/**  Avoid unnecessary type inference */
 type NoInfer<T> = [T][T extends any ? 0 : never]
 
 /**

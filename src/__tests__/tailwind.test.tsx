@@ -81,14 +81,16 @@ describe("tw", () => {
     })
 
     it("matches snapshot with overridden classNames", () => {
-        const CustomDiv = tw.div`bg-gray-400 px-5`
-        const { asFragment } = render(<CustomDiv className="bg-blue-500 p-2" />)
+        const Parent = tw.div`bg-gray-400 px-5`
+        const Child = tw(Parent)`bg-blue-500 p-2`
+        const { asFragment } = render(<Child />)
         expect(asFragment()).toMatchSnapshot()
     })
 
     it("matches snapshot with overridden classNames where child conflicting props win", () => {
-        const CustomDiv = tw.div`p-5`
-        const { asFragment } = render(<CustomDiv className="p-4" />)
+        const Parent = tw.div`p-5`
+        const Child = tw(Parent)`p-4`
+        const { asFragment } = render(<Child />)
         expect(asFragment()).toMatchSnapshot()
     })
 
@@ -135,8 +137,8 @@ describe("tw", () => {
 
     it("matches snapshot with two dynamic properties", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
-      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
-      ${(p) => (p.$test2 === "true" ? `p-10` : ``)}
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p: any) => (p.$test2 === "true" ? `p-10` : ``)}
       `
 
         const { asFragment } = render(
@@ -151,9 +153,9 @@ describe("tw", () => {
     it("matches snapshot with two properties & two dynamic properties and maintains class order", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
       z-10
-      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       text-white
-      ${(p) => (p.$test2 === "true" ? `p-10` : ``)}
+      ${(p: any) => (p.$test2 === "true" ? `p-10` : ``)}
       `
 
         const { asFragment } = render(
@@ -168,7 +170,7 @@ describe("tw", () => {
     it("should render tag Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
       text-black
-      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       `
 
         const { asFragment } = render(<Div $as="a" $test1="true" href="http://" />)
@@ -193,7 +195,7 @@ describe("tw", () => {
     it("should render Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
         const RedDiv = tw(Div)`bg-red-500`
         const { asFragment } = render(<RedDiv $as="a" $test1="true" href="http://" />)
@@ -203,9 +205,9 @@ describe("tw", () => {
     it("should render component as component in `$as` prop: test 1", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const { asFragment } = render(<Div $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
@@ -218,9 +220,9 @@ describe("tw", () => {
         }
         const ClassDiv = tw(TestComp)<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const { asFragment } = render(<ClassDiv $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
@@ -229,9 +231,9 @@ describe("tw", () => {
     it("should render component as component in `$as` prop: test 2", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const RedDiv = tw(Div)`bg-red-500`
         const { asFragment } = render(<RedDiv $as={Nav} $test1="true" $isVertical={false} />)
