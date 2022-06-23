@@ -6,14 +6,14 @@ const isTwElement = Symbol("isTwElement?")
 
 type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
 
-export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
-    return template.reduce(
+export const mergeArrays = (template: TemplateStringsArray, templateElements: TemplateElementResult[]) => {
+    return template.reduce<TemplateElementResult[]>(
         (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove false values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
-        [] as (string | undefined | null)[]
+        []
     )
 }
 
-export const cleanTemplate = (template: (string | undefined | null)[], inheritedClasses: string = "") => {
+export const cleanTemplate = (template: TemplateElementResult[], inheritedClasses: string = "") => {
     const newClasses: string[] = template
         .join(" ")
         .trim()
@@ -97,6 +97,8 @@ export interface TailwindComponent<E extends React.ComponentType<any> | Intrinsi
 /**  Avoid unnecessary type inference */
 type NoInfer<T> = [T][T extends any ? 0 : never]
 
+type TemplateElementResult = string | undefined | null | false
+
 /**
  * A template function that accepts a template literal of tailwind classes and returns a tailwind-styled-component
  *
@@ -107,7 +109,7 @@ type NoInfer<T> = [T][T extends any ? 0 : never]
 export interface TemplateFunction<E extends React.ComponentType<any> | IntrinsicElementsKeys> {
     <K extends object = {}>(
         template: TemplateStringsArray,
-        ...templateElements: ((props: NoInfer<React.ComponentPropsWithRef<E>> & K) => string | undefined | null)[]
+        ...templateElements: ((props: NoInfer<React.ComponentPropsWithRef<E>> & K) => TemplateElementResult)[]
     ): TailwindComponent<E, K>
 }
 
@@ -161,7 +163,7 @@ const templateFunctionFactory: any = <
 >(
     Element: E
 ): TemplateFunction<any> => {
-    return (template: TemplateStringsArray, ...templateElements: ((props: any) => string | undefined | null)[]) => {
+    return (template: TemplateStringsArray, ...templateElements: ((props: any) => TemplateElementResult)[]) => {
         const TwComponent: any = React.forwardRef<any, any>(({ $as, ...props }, ref) => {
             // change Element when `$as` prop detected
             const FinalElement = $as || Element

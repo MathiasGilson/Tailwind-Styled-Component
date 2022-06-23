@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import tw, { mergeArrays, cleanTemplate } from "../tailwind"
 import { act, render } from "@testing-library/react"
+import "@testing-library/jest-dom"
 
 interface TestCompProps {
     className?: string
@@ -148,6 +149,67 @@ describe("tw", () => {
         )
 
         expect(asFragment()).toMatchSnapshot()
+    })
+
+    it("ignores undefined as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : undefined)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("ignores null as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : null)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("ignores empty string as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("ignores false as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : false)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("works using the short hand syntax for false or undefined", () => {
+        const Div = tw.div<{ $test1?: string; $test2?: string }>`
+      ${(p: any) => p.$test1 === "true" && `bg-gray-500`}
+      ${(p: any) => p.$test2 && `bg-gray-500`}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
     })
 
     it("matches snapshot with two properties & two dynamic properties and maintains class order", () => {
