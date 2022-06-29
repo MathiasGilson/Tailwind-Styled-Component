@@ -91,7 +91,7 @@ export interface TailwindComponent<E extends React.ComponentType<any> | Intrinsi
         props: TailwindComponentPropsWith$As<E, K, As>
     ): React.ReactElement<TailwindComponentPropsWith$As<E, K, As>> | null
 
-    withStyles: <S extends object = {}>(
+    withStyle: <S extends object = {}>(
         styles: CSSProperties | ((p: NoInfer<React.ComponentPropsWithRef<E> & K> & S) => CSSProperties)
     ) => TailwindComponent<E, K & S>
 
@@ -198,7 +198,7 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
                     // change Element when `$as` prop detected
                     const FinalElement = $as || Element
 
-                    const baseStyles: CSSProperties = styleArray.reduce<CSSProperties>(
+                    const withStyles: CSSProperties = styleArray.reduce<CSSProperties>(
                         (acc, intStyle) =>
                             Object.assign(acc, typeof intStyle === "function" ? intStyle(baseProps) : intStyle),
                         {} as CSSProperties
@@ -216,7 +216,7 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
                         <FinalElement
                             // forward props
                             {...filteredProps}
-                            style={{ ...baseStyles, ...style }}
+                            style={{ ...withStyles, ...style }}
                             // forward ref
                             ref={ref}
                             // set class names
@@ -241,7 +241,7 @@ const templateFunctionFactory: TemplateFunctionFactory = <E extends React.Compon
             } else {
                 TwComponent.displayName = "tw." + Element
             }
-            TwComponent.withStyles = <S extends object = {}>(
+            TwComponent.withStyle = <S extends object = {}>(
                 styles: ((p: React.ComponentPropsWithRef<E> & S) => CSSProperties) | CSSProperties
             ) => TwComponentConstructor(styleArray.concat(styles))
 

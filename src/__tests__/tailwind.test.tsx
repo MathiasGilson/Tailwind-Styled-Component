@@ -117,6 +117,19 @@ describe("tw", () => {
                 test
             </Div>
         )
+        expect(asFragment()).toMatchSnapshot()
+    })
+    it("matches snapshot with three properties including `withStyle`", () => {
+        const Div = tw.div<{ $test1?: string; $test2?: string }>`
+      bg-gray-500
+      p-10
+      `.withStyle<{ bgColor: string }>((p) => ({ backgroundColor: p.bgColor }))
+
+        const { asFragment } = render(
+            <Div $test1="true" $test2="true" bgColor="blue">
+                test
+            </Div>
+        )
 
         expect(asFragment()).toMatchSnapshot()
     })

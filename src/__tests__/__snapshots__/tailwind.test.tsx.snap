@@ -41,6 +41,18 @@ exports[`tw matches snapshot with intrinsic element 1`] = `
 </DocumentFragment>
 `;
 
+exports[`tw matches snapshot with three properties including \`withStyle\` 1`] = `
+<DocumentFragment>
+  <div
+    bgcolor="blue"
+    class="bg-gray-500 p-10"
+    style="background-color: blue;"
+  >
+    test
+  </div>
+</DocumentFragment>
+`;
+
 exports[`tw matches snapshot with two dynamic properties 1`] = `
 <DocumentFragment>
   <div
