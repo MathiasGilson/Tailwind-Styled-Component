@@ -92,37 +92,37 @@ export type TailwindComponentProps<
     // The Component from whose props are derived
     C extends string | React.ComponentType<any>,
     // The other props added by the template
-    O extends object
+    O extends object = {}
     // $As extends string | React.ComponentType<any> = C
 > =
     // Distribute O if O is a union type
     O extends object ? PickU<MakeAttrs<C, O>, keyof MakeAttrs<C, O>> & WithChildrenIfReactComponentClass<C> : never
 
 type TailwindComponentPropsWith$As<
-    C extends string | React.ComponentType<any>,
+    P extends object,
     O extends object,
-    $As extends string | React.ComponentType<any> = C
-> = TailwindComponentProps<C, O> & { $as?: $As | undefined }
+    $As extends string | React.ComponentType<any> = React.ComponentType<P>
+> = P & O & TailwindComponentProps<$As>&{ $as?: $As | undefined }
 
 export type TailwindComponent<
-    C extends keyof JSX.IntrinsicElements | React.ComponentType<any>,
+    P extends object,
     O extends object = {}
-> = IsTwElement & TailwindComponentBase<C, O> & WithStyles<C, O>
-export interface TailwindComponentBase<C extends string | React.ComponentType<any>, O extends object = {}>
-    extends TailwindExoticComponent<TailwindComponentProps<C, O>> {
+> = IsTwElement & TailwindComponentBase<P, O> & WithStyles<P, O>
+export interface TailwindComponentBase<P extends object, O extends object = {}>
+    extends TailwindExoticComponent<P & O> {
     // add our own fake call signature to implement the polymorphic '$as' prop
-    (props: TailwindComponentProps<C, O> & { $as?: never | undefined }): React.ReactElement<
-        TailwindComponentProps<C, O>
+    (props: P & O & { $as?: never | undefined }): React.ReactElement<
+        P & O
     >
-    <$As extends string | React.ComponentType<any> = C>(
-        props: TailwindComponentPropsWith$As<$As, O, $As>
-    ): React.ReactElement<TailwindComponentPropsWith$As<$As, O, $As>>
+    <$As extends string | React.ComponentType<any> = React.ComponentType<P>>(
+        props: TailwindComponentPropsWith$As<P, O, $As>
+    ): React.ReactElement<TailwindComponentPropsWith$As<P, O, $As>>
 }
 
-export interface WithStyles<C extends keyof JSX.IntrinsicElements | React.ComponentType<any>, O extends object = {}> {
+export interface WithStyles<P extends object, O extends object = {}> {
     withStyle: <S extends object = {}>(
-        styles: CSSProperties | ((p: TailwindComponentProps<C, O> & S) => CSSProperties)
-    ) => TailwindComponent<C, O & S>
+        styles: CSSProperties | ((p: P& O & S) => CSSProperties)
+    ) => TailwindComponent<P, O & S>
 }
 
 type AnyTailwindComponent = TailwindComponent<any, any>
@@ -142,16 +142,16 @@ type AnyTailwindComponent = TailwindComponent<any, any>
  * @template E
  * @template K2
  */
-export interface TemplateFunction<C extends React.ComponentType<any> | IntrinsicElementsKeys, O extends object = {}> {
-    (template: TemplateStringsArray): TailwindComponent<C, O>
+export interface TemplateFunction<P extends object, O extends object = {}> {
+    (template: TemplateStringsArray): TailwindComponent<P, O>
     (
-        template: TemplateStringsArray | InterpolationFunction<TailwindComponentPropsWithRef<C> & O>,
-        ...rest: Array<Interpolation<TailwindComponentPropsWithRef<C> & O>>
-    ): TailwindComponent<C, O>
+        template: TemplateStringsArray | InterpolationFunction<P & O>,
+        ...rest: Array<Interpolation<P & O>>
+    ): TailwindComponent<P, O>
     <K extends object>(
-        template: TemplateStringsArray | InterpolationFunction<TailwindComponentPropsWithRef<C> & O & K>,
-        ...rest: Array<Interpolation<TailwindComponentPropsWithRef<C> & O & K>>
-    ): TailwindComponent<C, O & K>
+        template: TemplateStringsArray | InterpolationFunction<P & O & K>,
+        ...rest: Array<Interpolation<P & O & K>>
+    ): TailwindComponent<P, O & K>
 }
 
 interface ClassNameProp {
@@ -212,14 +212,14 @@ export type TailwindComponentInnerOtherProps<C extends AnyTailwindComponent> = C
     : never
 
 export type IntrinsicElementsTemplateFunctionsMap = {
-    [RTag in keyof JSX.IntrinsicElements]: TemplateFunction<RTag>
+    [RTag in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[RTag]>
 }
 export interface TailwindInterface extends IntrinsicElementsTemplateFunctionsMap {
     <C extends TailwindComponent<any, any>>(component: C): TemplateFunction<
-        TailwindComponentInnerComponent<C>,
+        TailwindComponentProps<C>,
         TailwindComponentInnerOtherProps<C>
     >
-    <C extends keyof JSX.IntrinsicElements | React.ComponentType<any>>(component: C): TemplateFunction<C>
+    <C extends keyof JSX.IntrinsicElements | React.ComponentType<any>>(component: C): TemplateFunction<TailwindComponentProps<C>>
 }
 
 const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType>(Element: C): any => {
@@ -231,7 +231,7 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
             styleArray: (CSSProperties | ((p: React.ComponentPropsWithRef<C> & K) => CSSProperties))[] = []
         ) => {
             // const renderFunction =
-            const TwComponent: TailwindComponent<C, K> = React.forwardRef(
+            const TwComponent: TailwindComponent<any, K> = React.forwardRef(
                 (
                     baseProps: React.ComponentPropsWithRef<C> & K & BaseProps,
                     ref: React.ForwardedRef<C>
