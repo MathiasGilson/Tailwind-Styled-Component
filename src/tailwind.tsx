@@ -2,68 +2,9 @@ import React, { CSSProperties } from "react"
 import domElements from "./domElements"
 import { classnames } from "tailwindcss-classnames"
 
-interface REACT_STATICS {
-    childContextTypes: true
-    contextType: true
-    contextTypes: true
-    defaultProps: true
-    displayName: true
-    getDefaultProps: true
-    getDerivedStateFromError: true
-    getDerivedStateFromProps: true
-    mixins: true
-    propTypes: true
-    type: true
-}
-
-interface KNOWN_STATICS {
-    name: true
-    length: true
-    prototype: true
-    caller: true
-    callee: true
-    arguments: true
-    arity: true
-}
-
-interface MEMO_STATICS {
-    $$typeof: true
-    compare: true
-    defaultProps: true
-    displayName: true
-    propTypes: true
-    type: true
-}
-
-interface FORWARD_REF_STATICS {
-    $$typeof: true
-    render: true
-    defaultProps: true
-    displayName: true
-    propTypes: true
-}
-
-declare namespace hoistNonReactStatics {
-    type NonReactStatics<
-        S extends React.ComponentType<any>,
-        C extends {
-            [key: string]: true
-        } = {}
-    > = {
-        [key in Exclude<
-            keyof S,
-            S extends React.MemoExoticComponent<any>
-                ? keyof MEMO_STATICS | keyof C
-                : S extends React.ForwardRefExoticComponent<any>
-                ? keyof FORWARD_REF_STATICS | keyof C
-                : keyof REACT_STATICS | keyof KNOWN_STATICS | keyof C
-        >]: S[key]
-    }
-}
-
 const isTwElement = Symbol("isTwElement?")
 
-export type IsTwElement = typeof isTwElement
+export type IsTwElement = { [isTwElement]: boolean }
 export type FalseyValue = undefined | null | false
 
 export type FlattenInterpolation<P> = ReadonlyArray<Interpolation<P>>
@@ -120,9 +61,6 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
 
 export type PickU<T, K extends keyof T> = T extends any ? { [P in K]: T[P] } : never
 export type OmitU<T, K extends keyof T> = T extends any ? PickU<T, Exclude<keyof T, K>> : never
-type WithOptionalTheme<P extends { theme?: T | undefined }, T> = OmitU<P, "theme"> & {
-    theme?: T | undefined
-}
 
 export type TailwindExoticComponent<P> = PickU<
     React.ForwardRefExoticComponent<P>,
@@ -158,7 +96,7 @@ export type TailwindComponentProps<
     // $As extends string | React.ComponentType<any> = C
 > =
     // Distribute O if O is a union type
-    O extends object ? WithOptionalTheme<MakeAttrs<C, O> & WithChildrenIfReactComponentClass<C>, null> : never
+    O extends object ? PickU<MakeAttrs<C, O>, keyof MakeAttrs<C, O>> & WithChildrenIfReactComponentClass<C> : never
 
 type TailwindComponentPropsWith$As<
     C extends string | React.ComponentType<any>,
@@ -169,10 +107,7 @@ type TailwindComponentPropsWith$As<
 export type TailwindComponent<
     C extends keyof JSX.IntrinsicElements | React.ComponentType<any>,
     O extends object = {}
-> = IsTwElement &
-    TailwindComponentBase<C, O> &
-    WithStyles<C, O> &
-    hoistNonReactStatics.NonReactStatics<C extends React.ComponentType<any> ? C : never>
+> = IsTwElement & TailwindComponentBase<C, O> & WithStyles<C, O>
 export interface TailwindComponentBase<C extends string | React.ComponentType<any>, O extends object = {}>
     extends TailwindExoticComponent<TailwindComponentProps<C, O>> {
     // add our own fake call signature to implement the polymorphic '$as' prop
