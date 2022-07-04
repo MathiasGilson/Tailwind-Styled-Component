@@ -102,18 +102,14 @@ type TailwindComponentPropsWith$As<
     P extends object,
     O extends object,
     $As extends string | React.ComponentType<any> = React.ComponentType<P>
-> = P & O & TailwindComponentProps<$As>&{ $as?: $As | undefined }
+> = P & O & TailwindComponentProps<$As> & { $as?: $As | undefined }
 
-export type TailwindComponent<
-    P extends object,
-    O extends object = {}
-> = IsTwElement & TailwindComponentBase<P, O> & WithStyles<P, O>
-export interface TailwindComponentBase<P extends object, O extends object = {}>
-    extends TailwindExoticComponent<P & O> {
+export type TailwindComponent<P extends object, O extends object = {}> = IsTwElement &
+    TailwindComponentBase<P, O> &
+    WithStyles<P, O>
+export interface TailwindComponentBase<P extends object, O extends object = {}> extends TailwindExoticComponent<P & O> {
     // add our own fake call signature to implement the polymorphic '$as' prop
-    (props: P & O & { $as?: never | undefined }): React.ReactElement<
-        P & O
-    >
+    (props: P & O & { $as?: never | undefined }): React.ReactElement<P & O>
     <$As extends string | React.ComponentType<any> = React.ComponentType<P>>(
         props: TailwindComponentPropsWith$As<P, O, $As>
     ): React.ReactElement<TailwindComponentPropsWith$As<P, O, $As>>
@@ -121,7 +117,7 @@ export interface TailwindComponentBase<P extends object, O extends object = {}>
 
 export interface WithStyles<P extends object, O extends object = {}> {
     withStyle: <S extends object = {}>(
-        styles: CSSProperties | ((p: P& O & S) => CSSProperties)
+        styles: CSSProperties | ((p: P & O & S) => CSSProperties)
     ) => TailwindComponent<P, O & S>
 }
 
@@ -216,10 +212,12 @@ export type IntrinsicElementsTemplateFunctionsMap = {
 }
 export interface TailwindInterface extends IntrinsicElementsTemplateFunctionsMap {
     <C extends TailwindComponent<any, any>>(component: C): TemplateFunction<
-        TailwindComponentProps<C>,
+        C extends TailwindComponent<infer P, any> ? P : never,
         TailwindComponentInnerOtherProps<C>
     >
-    <C extends keyof JSX.IntrinsicElements | React.ComponentType<any>>(component: C): TemplateFunction<TailwindComponentProps<C>>
+    <C extends keyof JSX.IntrinsicElements | React.ComponentType<any>>(component: C): TemplateFunction<
+        TailwindComponentProps<C>
+    >
 }
 
 const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType>(Element: C): any => {
