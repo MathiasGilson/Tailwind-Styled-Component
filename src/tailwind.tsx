@@ -77,26 +77,32 @@ export type TailwindExoticComponent<P> = PickU<
  * @template K The props added with the template function.
  */
 
-type WithChildrenIfReactComponentClass<C extends string | React.ComponentType<any>> =
-    C extends React.ComponentClass<any> ? { children?: React.ReactNode | undefined } : {}
+// type WithChildrenIfReactComponentClass<C extends string | React.ComponentType<any>> =
+//     C extends React.ComponentClass<any> ? { children?: React.ReactNode | undefined } : {}
 
-type MakeAttrs<
-    C extends string | React.ComponentType<any>,
-    O extends object,
-    P = React.ComponentPropsWithRef<C extends IntrinsicElementsKeys | React.ComponentType<any> ? C : never>
-> =
+type MakeAttrs<O extends object, P extends {} = {}> =
     // Distribute unions early to avoid quadratic expansion
     P extends any ? P & O : never
+
+type TailwindPropHelper<
+    // The other props added by the template
+    P,
+    O extends object
+    // $As extends string | React.ComponentType<any> = C
+> = PickU<MakeAttrs<O, P>, keyof MakeAttrs<O, P>>
 
 export type TailwindComponentProps<
     // The Component from whose props are derived
     C extends string | React.ComponentType<any>,
     // The other props added by the template
-    O extends object = {}
+    O extends object = {},
+    P = C extends AnyTailwindComponent
+        ? TailwindComponentInnerProps<C> & TailwindComponentInnerOtherProps<C>
+        : React.ComponentPropsWithRef<C extends IntrinsicElementsKeys | React.ComponentType<any> ? C : never>
     // $As extends string | React.ComponentType<any> = C
 > =
     // Distribute O if O is a union type
-    O extends object ? PickU<MakeAttrs<C, O>, keyof MakeAttrs<C, O>> & WithChildrenIfReactComponentClass<C> : never
+    O extends object ? TailwindPropHelper<P, O> : never
 
 type TailwindComponentPropsWith$As<
     P extends object,
@@ -107,9 +113,10 @@ type TailwindComponentPropsWith$As<
 export type TailwindComponent<P extends object, O extends object = {}> = IsTwElement &
     TailwindComponentBase<P, O> &
     WithStyles<P, O>
-export interface TailwindComponentBase<P extends object, O extends object = {}> extends TailwindExoticComponent<P & O> {
+export interface TailwindComponentBase<P extends object, O extends object = {}>
+    extends TailwindExoticComponent<TailwindPropHelper<P, O>> {
     // add our own fake call signature to implement the polymorphic '$as' prop
-    (props: P & O & { $as?: never | undefined }): React.ReactElement<P & O>
+    (props: TailwindPropHelper<P, O> & { $as?: never | undefined }): React.ReactElement<TailwindPropHelper<P, O>>
     <$As extends string | React.ComponentType<any> = React.ComponentType<P>>(
         props: TailwindComponentPropsWith$As<P, O, $As>
     ): React.ReactElement<TailwindComponentPropsWith$As<P, O, $As>>
@@ -191,17 +198,9 @@ const removeTransientProps = ([key]: [string, any]): boolean => key.charAt(0) !=
 //     <E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
 // }
 
-export type TailwindComponentInnerComponent<C extends React.ComponentType<any>> = C extends TailwindComponent<
-    infer I,
-    any
->
-    ? I
-    : C
-
-export type TailwindComponentPropsWithRef<C extends keyof JSX.IntrinsicElements | React.ComponentType<any>> =
-    C extends AnyTailwindComponent
-        ? React.ComponentPropsWithRef<TailwindComponentInnerComponent<C>>
-        : React.ComponentPropsWithRef<C>
+export type TailwindComponentInnerProps<C extends AnyTailwindComponent> = C extends TailwindComponent<infer P, any>
+    ? P
+    : never
 
 export type TailwindComponentInnerOtherProps<C extends AnyTailwindComponent> = C extends TailwindComponent<any, infer O>
     ? O
@@ -212,11 +211,12 @@ export type IntrinsicElementsTemplateFunctionsMap = {
 }
 export interface TailwindInterface extends IntrinsicElementsTemplateFunctionsMap {
     <C extends TailwindComponent<any, any>>(component: C): TemplateFunction<
-        C extends TailwindComponent<infer P, any> ? P : never,
+        TailwindComponentInnerProps<C>,
         TailwindComponentInnerOtherProps<C>
     >
     <C extends keyof JSX.IntrinsicElements | React.ComponentType<any>>(component: C): TemplateFunction<
-        TailwindComponentProps<C>
+        // Prevent functional components without props infering props as `unknown`
+        C extends () => any ? {} : React.ComponentPropsWithoutRef<C>
     >
 }
 
@@ -275,7 +275,7 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
                 }
             ) as any
             // symbol identifier for detecting tailwind-styled-components
-            // TwComponent[isTwElement] = true
+            TwComponent[isTwElement] = true
             // This enables the react tree to show a name in devtools, much better debugging experience Note: Far from perfect, better implementations welcome
             if (typeof Element !== "string") {
                 TwComponent.displayName = (Element as any).displayName || (Element as any).name || "tw.Component"
