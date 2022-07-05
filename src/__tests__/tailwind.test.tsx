@@ -45,7 +45,7 @@ describe("tw", () => {
         const Div = tw.div`bg-gray-400`
         let r: any = undefined
         const HasRef = () => {
-            const ref = useRef<HTMLDivElement>()
+            const ref = useRef<HTMLDivElement>(null)
             useEffect(() => {
                 r = ref
             }, [ref])
@@ -123,10 +123,10 @@ describe("tw", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
       bg-gray-500
       p-10
-      `.withStyle<{ bgColor: string }>((p) => ({ backgroundColor: p.bgColor }))
+      `.withStyle<{ $bgColor: string }>((p) => ({ backgroundColor: p.$bgColor }))
 
         const { asFragment } = render(
-            <Div $test1="true" $test2="true" bgColor="blue">
+            <Div $test1="true" $test2="true" $bgColor="blue">
                 test
             </Div>
         )
