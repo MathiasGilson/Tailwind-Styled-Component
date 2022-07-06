@@ -244,11 +244,13 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
                     // change Element when `$as` prop detected
                     const FinalElement = $as || Element
 
-                    const withStyles: CSSProperties = styleArray.reduce<CSSProperties>(
-                        (acc, intStyle) =>
-                            Object.assign(acc, typeof intStyle === "function" ? intStyle(baseProps) : intStyle),
-                        {} as CSSProperties
-                    )
+                    const withStyles: CSSProperties = styleArray
+                        ? styleArray.reduce<CSSProperties>(
+                              (acc, intStyle) =>
+                                  Object.assign(acc, typeof intStyle === "function" ? intStyle(baseProps) : intStyle),
+                              {} as CSSProperties
+                          )
+                        : {}
                     // const style = TwComponent.style(props)
 
                     // filter out props that starts with "$" props except when styling a tailwind-styled-component

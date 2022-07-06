@@ -238,4 +238,43 @@ describe("tw", () => {
         const { asFragment } = render(<RedDiv $as={Nav} $test1="true" $isVertical={false} />)
         expect(asFragment()).toMatchSnapshot()
     })
+    it("should not clear merged inheritedClasses without $as", () => {
+        const Heading = tw.p`
+        text-4xl font-bold text-gray-700
+      `
+        // extend the base Heading styled component
+        const Display = tw(Heading)`
+        text-6xl
+      `
+        const WithoutAs = ({}) => {
+            return (
+                // without the $as prop, all classnames will be merged in correctly.
+                // text-6xl font-bold text-gray-700 border-2 p-4
+                <Display className="border-2 p-4">{}</Display>
+            )
+        }
+
+        const { asFragment } = render(<WithoutAs />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+    it("should not clear merged inheritedClasses with $as", () => {
+        const Heading = tw.p`
+        text-4xl font-bold text-gray-700
+      `
+        // extend the base Heading styled component
+        const Display = tw(Heading)`
+        text-6xl
+      `
+        const WithAs = ({}) => {
+            return (
+                // with the $as prop, only the most recent component's classes will be used
+                // text-6xl border-2 p-4
+                <Display className="border-2 p-4" $as="h1">
+                    {}
+                </Display>
+            )
+        }
+        const { asFragment } = render(<WithAs />)
+        expect(asFragment()).toMatchSnapshot()
+    })
 })

@@ -82,6 +82,22 @@ exports[`tw matches snapshot with two properties 1`] = `
 </DocumentFragment>
 `;
 
+exports[`tw should not clear merged inheritedClasses with $as 1`] = `
+<DocumentFragment>
+  <h1
+    class="text-4xl font-bold text-gray-700 text-6xl border-2 p-4"
+  />
+</DocumentFragment>
+`;
+
+exports[`tw should not clear merged inheritedClasses without $as 1`] = `
+<DocumentFragment>
+  <p
+    class="text-4xl font-bold text-gray-700 text-6xl border-2 p-4"
+  />
+</DocumentFragment>
+`;
+
 exports[`tw should render Component as html tag in \`$as\` prop 1`] = `
 <DocumentFragment>
   <a
