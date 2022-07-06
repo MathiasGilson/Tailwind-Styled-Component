@@ -113,6 +113,7 @@ type TailwindComponentPropsWith$As<
 export type TailwindComponent<P extends object, O extends object = {}> = IsTwElement &
     TailwindComponentBase<P, O> &
     WithStyles<P, O>
+
 export interface TailwindComponentBase<P extends object, O extends object = {}>
     extends TailwindExoticComponent<TailwindPropHelper<P, O>> {
     // add our own fake call signature to implement the polymorphic '$as' prop
@@ -220,6 +221,10 @@ export interface TailwindInterface extends IntrinsicElementsTemplateFunctionsMap
     >
 }
 
+const isTw = (c: any): c is AnyTailwindComponent => c[isTwElement] === true
+
+// type FDF = React.ElementType<JSX.IntrinsicElements['div']>
+
 const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType>(Element: C): any => {
     return <K extends object = {}>(
         template: TemplateStringsArray,
@@ -247,12 +252,34 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
                     // const style = TwComponent.style(props)
 
                     // filter out props that starts with "$" props except when styling a tailwind-styled-component
-                    const filteredProps: React.ComponentPropsWithRef<C> & K =
-                        FinalElement[isTwElement] === true
-                            ? (props as React.ComponentPropsWithRef<C> & K)
-                            : (Object.fromEntries(
-                                  Object.entries(props).filter(removeTransientProps)
-                              ) as React.ComponentPropsWithRef<C> & K)
+                    const filteredProps: React.ComponentPropsWithRef<C> & K = isTw(FinalElement)
+                        ? (props as React.ComponentPropsWithRef<C> & K)
+                        : (Object.fromEntries(
+                              Object.entries(props).filter(removeTransientProps)
+                          ) as React.ComponentPropsWithRef<C> & K)
+                    if (isTw(Element)) {
+                        const Element$: any = Element
+                        return (
+                            <Element$
+                                // forward props
+                                {...filteredProps}
+                                style={{ ...withStyles, ...style }}
+                                // forward ref
+                                ref={ref}
+                                // set class names
+                                className={cleanTemplate(
+                                    mergeArrays(
+                                        template,
+                                        templateElements.map((t) =>
+                                            t({ ...props, $as } as React.ComponentPropsWithRef<C> & K)
+                                        )
+                                    ),
+                                    props.className
+                                )}
+                                $as={$as}
+                            />
+                        )
+                    }
                     return (
                         <FinalElement
                             // forward props
