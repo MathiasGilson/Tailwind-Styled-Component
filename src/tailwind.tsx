@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react"
 import domElements from "./domElements"
-import { classnames } from "tailwindcss-classnames"
+import { twMerge } from "tailwind-merge"
 
 const isTwElement = Symbol("isTwElement?")
 
@@ -16,6 +16,8 @@ export type InterpolationFunction<P> = (props: P) => Interpolation<P>
 type TailwindComponentInterpolation = PickU<TailwindComponentBase<any, any>, keyof TailwindComponentBase<any, any>>
 
 type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
+
+type IsAny<T, True, False = never> = True | False extends (T extends never ? True : False) ? True : False
 
 export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
@@ -35,62 +37,40 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
 
     const inheritedClassesArray: string[] = inheritedClasses ? inheritedClasses.split(" ") : []
 
-    return classnames(
+    return twMerge(
         ...(newClasses as any)
             .concat(inheritedClassesArray) // add new classes
             .filter((c: string) => c !== " ") // remove empty classes
-            .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
+        // .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
     ) as string // to remove "TAILWIND_STRING" type
 }
-
-/** Removes call signatures (i.e functions) from Object types */
-// type StripCallSignature<T> = { [K in keyof T]: T[K] }
-
-// needed for some reason, without it polymorphic $as props typing has issues - help requested
-// type SpreadUnion<U> = U extends any ? { [K in keyof U]: U[K] } : never
-
-/**
- * @author 'DefinitelyTyped/types/styled-components'.
- *
- * Because of React typing quirks, when getting props from a React.ComponentClass,
- * we need to manually add a `children` field.
- * See https://github.com/DefinitelyTyped/DefinitelyTyped/pull/31945
- * and https://github.com/DefinitelyTyped/DefinitelyTyped/pull/32843 */
-// type WithChildrenIfReactComponentClass<C extends string | React.ComponentType<any>> =
-//     C extends React.ComponentClass<any> ? { children?: React.ReactNode | undefined } : {}
 
 export type PickU<T, K extends keyof T> = T extends any ? { [P in K]: T[P] } : never
 export type OmitU<T, K extends keyof T> = T extends any ? PickU<T, Exclude<keyof T, K>> : never
 
+/**
+ *
+ */
 export type TailwindExoticComponent<P> = PickU<
     React.ForwardRefExoticComponent<P>,
     keyof React.ForwardRefExoticComponent<any>
 >
 
-/**
- * An interface represent a component styled by tailwind-styled-components
- *
- * @export
- * @interface TailwindComponent
- * @extends {TailwindExoticComponent<E, K>}
- * @template E The base react component or html tag
- * @template K The props added with the template function.
- */
-
-// type WithChildrenIfReactComponentClass<C extends string | React.ComponentType<any>> =
-//     C extends React.ComponentClass<any> ? { children?: React.ReactNode | undefined } : {}
-
-type MakeAttrs<O extends object, P extends {} = {}> =
+type MergeProps<O extends object, P extends {} = {}> =
     // Distribute unions early to avoid quadratic expansion
-    P extends any ? P & O : never
+    P extends any ? IsAny<P, RemoveIndex<P> & O, P & O> : never
+// RemoveIndex<P> is used to make React.ComponentPropsWithRef typesafe on Tailwind components, delete if causing issues
 
 type TailwindPropHelper<
     // The other props added by the template
     P,
     O extends object
     // $As extends string | React.ComponentType<any> = C
-> = PickU<MakeAttrs<O, P>, keyof MakeAttrs<O, P>>
+> = PickU<MergeProps<O, P>, keyof MergeProps<O, P>>
 
+export type RemoveIndex<T> = {
+    [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
+}
 export type TailwindComponentProps<
     // The Component from whose props are derived
     C extends string | React.ComponentType<any>,
@@ -98,8 +78,9 @@ export type TailwindComponentProps<
     O extends object = {},
     P = C extends AnyTailwindComponent
         ? TailwindComponentInnerProps<C> & TailwindComponentInnerOtherProps<C>
-        : React.ComponentPropsWithRef<C extends IntrinsicElementsKeys | React.ComponentType<any> ? C : never>
-    // $As extends string | React.ComponentType<any> = C
+        : C extends IntrinsicElementsKeys | React.ComponentType<any>
+        ? React.ComponentPropsWithRef<C>
+        : never
 > =
     // Distribute O if O is a union type
     O extends object ? TailwindPropHelper<P, O> : never
@@ -108,22 +89,47 @@ type TailwindComponentPropsWith$As<
     P extends object,
     O extends object,
     $As extends string | React.ComponentType<any> = React.ComponentType<P>
-> = P & O & TailwindComponentProps<$As> & { $as?: $As | undefined }
+> = P & O & TailwindComponentProps<$As> & { $as?: $As }
 
+/**
+ * An interface represent a component styled by tailwind-styled-components
+ *
+ * @export
+ * @interface TailwindComponent
+ * @template P The base react props
+ * @template O The props added with the template function.
+ */
 export type TailwindComponent<P extends object, O extends object = {}> = IsTwElement &
     TailwindComponentBase<P, O> &
-    WithStyles<P, O>
+    WithStyle<P, O>
 
+/**
+ * An interface represent a component styled by tailwind-styled-components
+ *
+ * @export
+ * @interface TailwindComponentBase
+ * @extends {TailwindExoticComponent<TailwindPropHelper<P, O>>}
+ * @template P The base react props
+ * @template O The props added with the template function.
+ */
 export interface TailwindComponentBase<P extends object, O extends object = {}>
     extends TailwindExoticComponent<TailwindPropHelper<P, O>> {
     // add our own fake call signature to implement the polymorphic '$as' prop
     (props: TailwindPropHelper<P, O> & { $as?: never | undefined }): React.ReactElement<TailwindPropHelper<P, O>>
+
     <$As extends string | React.ComponentType<any> = React.ComponentType<P>>(
         props: TailwindComponentPropsWith$As<P, O, $As>
     ): React.ReactElement<TailwindComponentPropsWith$As<P, O, $As>>
 }
-
-export interface WithStyles<P extends object, O extends object = {}> {
+/**
+ *  An interface represent withStyle functionality
+ *
+ * @export
+ * @interface WithStyle
+ * @template P
+ * @template O
+ */
+export interface WithStyle<P extends object, O extends object = {}> {
     withStyle: <S extends object = {}>(
         styles: CSSProperties | ((p: P & O & S) => CSSProperties)
     ) => TailwindComponent<P, O & S>
@@ -210,15 +216,25 @@ export type TailwindComponentInnerOtherProps<C extends AnyTailwindComponent> = C
 export type IntrinsicElementsTemplateFunctionsMap = {
     [RTag in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[RTag]>
 }
+
+/**
+ *
+ *
+ * @export
+ * @interface TailwindInterface
+ * @extends {IntrinsicElementsTemplateFunctionsMap}
+ */
 export interface TailwindInterface extends IntrinsicElementsTemplateFunctionsMap {
     <C extends TailwindComponent<any, any>>(component: C): TemplateFunction<
         TailwindComponentInnerProps<C>,
         TailwindComponentInnerOtherProps<C>
     >
-    <C extends keyof JSX.IntrinsicElements | React.ComponentType<any>>(component: C): TemplateFunction<
+    <C extends React.ComponentType<any>>(component: C): TemplateFunction<
         // Prevent functional components without props infering props as `unknown`
-        C extends () => any ? {} : React.ComponentPropsWithoutRef<C>
+        C extends (P?: never) => any ? {} : React.ComponentPropsWithoutRef<C>
     >
+
+    <C extends keyof JSX.IntrinsicElements>(component: C): TemplateFunction<JSX.IntrinsicElements[C]>
 }
 
 const isTw = (c: any): c is AnyTailwindComponent => c[isTwElement] === true
