@@ -6,12 +6,12 @@ import { expectExactAny, expectExactType, expectNotAny, expectType } from "./tes
 const Divvy2 = tw("div")<{ $test1: string }>`
         text-black
         `
-const RedDiv = tw(Divvy2)`bg-red-500`
-const RedDiv2jn = tw(RedDiv)`bg-red-500`
+const RedDiv = tw(Divvy2)`bg-red-500 ${(p) => p.$test1 || ""}`
 
 const Div = tw.div``
 const H1 = tw.h1``
 const A = tw.a``
+const RedDiv2jn = tw(H1)`bg-red-500`
 
 /**Test: Properly gives a type error when wrong props are used */
 {

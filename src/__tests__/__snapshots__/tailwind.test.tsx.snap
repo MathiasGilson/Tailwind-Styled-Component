@@ -85,7 +85,7 @@ exports[`tw matches snapshot with two properties 1`] = `
 exports[`tw should not clear merged inheritedClasses with $as 1`] = `
 <DocumentFragment>
   <h1
-    class="text-4xl font-bold text-gray-700 text-6xl border-2 p-4"
+    class="font-bold text-gray-700 text-6xl border-2 p-4"
   />
 </DocumentFragment>
 `;
@@ -93,7 +93,7 @@ exports[`tw should not clear merged inheritedClasses with $as 1`] = `
 exports[`tw should not clear merged inheritedClasses without $as 1`] = `
 <DocumentFragment>
   <p
-    class="text-4xl font-bold text-gray-700 text-6xl border-2 p-4"
+    class="font-bold text-gray-700 text-6xl border-2 p-4"
   />
 </DocumentFragment>
 `;
@@ -101,7 +101,7 @@ exports[`tw should not clear merged inheritedClasses without $as 1`] = `
 exports[`tw should render Component as html tag in \`$as\` prop 1`] = `
 <DocumentFragment>
   <a
-    class="bg-red-500"
+    class="text-black bg-red-500"
     href="http://"
   />
 </DocumentFragment>
@@ -110,7 +110,7 @@ exports[`tw should render Component as html tag in \`$as\` prop 1`] = `
 exports[`tw should render base class component as component in \`$as\` prop: test 1 1`] = `
 <DocumentFragment>
   <nav
-    class="flex h-20 w-full flex-col h-full w-20 text-black bg-gray-500"
+    class="flex flex-col h-full w-20 text-black bg-gray-500"
   />
 </DocumentFragment>
 `;
@@ -118,7 +118,7 @@ exports[`tw should render base class component as component in \`$as\` prop: tes
 exports[`tw should render component as component in \`$as\` prop: test 1 1`] = `
 <DocumentFragment>
   <nav
-    class="flex h-20 w-full flex-col h-full w-20 text-black bg-gray-500"
+    class="flex flex-col h-full w-20 text-black bg-gray-500"
   />
 </DocumentFragment>
 `;
@@ -126,7 +126,7 @@ exports[`tw should render component as component in \`$as\` prop: test 1 1`] = `
 exports[`tw should render component as component in \`$as\` prop: test 2 1`] = `
 <DocumentFragment>
   <nav
-    class="flex h-20 w-full bg-red-500"
+    class="flex h-20 w-full text-black bg-red-500"
   />
 </DocumentFragment>
 `;
