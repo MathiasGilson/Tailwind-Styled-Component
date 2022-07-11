@@ -49,6 +49,19 @@ exports[`tw matches snapshot with three properties including \`withStyle\` 1`] =
   >
     test
   </div>
+exports[`tw matches snapshot with overridden classNames 1`] = `
+<DocumentFragment>
+  <div
+    class="bg-blue-500 p-2"
+  />
+</DocumentFragment>
+`;
+
+exports[`tw matches snapshot with overridden classNames where child conflicting props win 1`] = `
+<DocumentFragment>
+  <div
+    class="p-4"
+  />
 </DocumentFragment>
 `;
 

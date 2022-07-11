@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import tw, { mergeArrays, cleanTemplate } from "../tailwind"
 import { act, render } from "@testing-library/react"
+import "@testing-library/jest-dom"
 
 interface TestCompProps {
     className?: string
@@ -80,6 +81,20 @@ describe("tw", () => {
         expect(TwTestComponent.displayName).toBe("TestComponent")
     })
 
+    it("matches snapshot with overridden classNames", () => {
+        const Parent = tw.div`bg-gray-400 px-5`
+        const Child = tw(Parent)`bg-blue-500 p-2`
+        const { asFragment } = render(<Child />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+
+    it("matches snapshot with overridden classNames where child conflicting props win", () => {
+        const Parent = tw.div`p-5`
+        const Child = tw(Parent)`p-4`
+        const { asFragment } = render(<Child />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+
     it("matches snapshot with intrinsic element", () => {
         const Div = tw.div`bg-gray-400`
         const { asFragment } = render(<Div>test</Div>)
@@ -136,8 +151,8 @@ describe("tw", () => {
 
     it("matches snapshot with two dynamic properties", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
-      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
-      ${(p) => (p.$test2 === "true" ? `p-10` : ``)}
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p: any) => (p.$test2 === "true" ? `p-10` : ``)}
       `
 
         const { asFragment } = render(
@@ -149,12 +164,73 @@ describe("tw", () => {
         expect(asFragment()).toMatchSnapshot()
     })
 
+    it("ignores undefined as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : undefined)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("ignores null as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : null)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("ignores empty string as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("ignores false as return value", () => {
+        const Div = tw.div<{ $test1?: string }>`
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : false)}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
+    it("works using the short hand syntax for false or undefined", () => {
+        const Div = tw.div<{ $test1?: string; $test2?: string }>`
+      ${(p: any) => p.$test1 === "true" && `bg-gray-500`}
+      ${(p: any) => p.$test2 && `bg-gray-500`}
+      p-10
+      `
+
+        const { getByText } = render(<Div $test1="false">test</Div>)
+
+        const element = getByText("test")
+        expect(element).toHaveClass("p-10", { exact: true })
+    })
+
     it("matches snapshot with two properties & two dynamic properties and maintains class order", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
       z-10
-      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       text-white
-      ${(p) => (p.$test2 === "true" ? `p-10` : ``)}
+      ${(p: any) => (p.$test2 === "true" ? `p-10` : ``)}
       `
 
         const { asFragment } = render(
@@ -169,7 +245,7 @@ describe("tw", () => {
     it("should render tag Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
       text-black
-      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       `
 
         const { asFragment } = render(<Div $as="a" $test1="true" href="http://" />)
@@ -194,7 +270,7 @@ describe("tw", () => {
     it("should render Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
         const RedDiv = tw(Div)`bg-red-500`
         const { asFragment } = render(<RedDiv $as="a" $test1="true" href="http://" />)
@@ -204,9 +280,9 @@ describe("tw", () => {
     it("should render component as component in `$as` prop: test 1", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const { asFragment } = render(<Div $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
@@ -219,9 +295,9 @@ describe("tw", () => {
         }
         const ClassDiv = tw(TestComp)<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const { asFragment } = render(<ClassDiv $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
@@ -230,9 +306,9 @@ describe("tw", () => {
     it("should render component as component in `$as` prop: test 2", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const RedDiv = tw(Div)`bg-red-500`
         const { asFragment } = render(<RedDiv $as={Nav} $test1="true" $isVertical={false} />)

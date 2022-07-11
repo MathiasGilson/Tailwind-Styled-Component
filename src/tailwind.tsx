@@ -22,11 +22,11 @@ type IsAny<T, True, False = never> = True | False extends (T extends never ? Tru
 export const mergeArrays = (template: TemplateStringsArray, templateElements: (string | undefined | null)[]) => {
     return template.reduce(
         (acc, c, i) => acc.concat(c || [], templateElements[i] || []), //  x || [] to remove false values e.g '', null, undefined. as Array.concat() ignores empty arrays i.e []
-        [] as (string | undefined | null)[]
+        [] as string[]
     )
 }
 
-export const cleanTemplate = (template: (string | undefined | null)[], inheritedClasses: string = "") => {
+export const cleanTemplate = (template: TemplateElementResult[], inheritedClasses: string = "") => {
     const newClasses: string[] = template
         .join(" ")
         .trim()
@@ -38,11 +38,10 @@ export const cleanTemplate = (template: (string | undefined | null)[], inherited
     const inheritedClassesArray: string[] = inheritedClasses ? inheritedClasses.split(" ") : []
 
     return twMerge(
-        ...(newClasses as any)
-            .concat(inheritedClassesArray) // add new classes
+        ...newClasses
+            .concat(inheritedClassesArray) // add new classes to inherited classes
             .filter((c: string) => c !== " ") // remove empty classes
-        // .filter((v: string, i: number, arr: string[]) => arr.indexOf(v) === i) // remove duplicate
-    ) as string // to remove "TAILWIND_STRING" type
+    )
 }
 
 export type PickU<T, K extends keyof T> = T extends any ? { [P in K]: T[P] } : never
@@ -144,13 +143,14 @@ type AnyTailwindComponent = TailwindComponent<any, any>
 /**  Avoid unneccessary type inference */
 // type NoInfer<T> = [T][T extends any ? 0 : never]
 
+type TemplateElementResult = string | undefined | null | false
+
 /**
  * A template function that accepts a template literal of tailwind classes and returns a tailwind-styled-component
  *
  * @export
  * @interface TemplateFunction
  * @template E
- * @template K2
  */
 export interface TemplateFunction<P extends object, O extends object = {}> {
     (template: TemplateStringsArray): TailwindComponent<P, O>
@@ -163,16 +163,6 @@ export interface TemplateFunction<P extends object, O extends object = {}> {
         ...rest: Array<Interpolation<P & O & K>>
     ): TailwindComponent<P, O & K>
 }
-
-interface ClassNameProp {
-    className?: string | undefined
-}
-interface AsProp {
-    $as?: IntrinsicElementsKeys | React.ComponentType<any>
-}
-
-// simple type alias
-type BaseProps = AsProp & ClassNameProp
 
 /**
  * A utility function that strips out transient props from a [key,value] array of props
@@ -252,13 +242,13 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
             // const renderFunction =
             const TwComponent: TailwindComponent<any, K> = React.forwardRef(
                 (
-                    baseProps: React.ComponentPropsWithRef<C> & K & BaseProps,
+                    baseProps: React.ComponentPropsWithRef<C> & K & { $as?: React.ElementType },
                     ref: React.ForwardedRef<C>
                 ): JSX.Element => {
-                    const { $as, style = {}, ...props } = baseProps
+                    const { $as = Element, style = {}, ...props } = baseProps
 
-                    // change Element when `$as` prop detected
-                    const FinalElement = $as || Element
+                    // set FinalElement based on if Element is a TailwindComponent, $as defaults to Element if undefined
+                    const FinalElement = isTw(Element) ? Element : $as
 
                     const withStyles: CSSProperties = styleArray
                         ? styleArray.reduce<CSSProperties>(
@@ -275,29 +265,6 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
                         : (Object.fromEntries(
                               Object.entries(props).filter(removeTransientProps)
                           ) as React.ComponentPropsWithRef<C> & K)
-                    if (isTw(Element)) {
-                        const Element$: any = Element
-                        return (
-                            <Element$
-                                // forward props
-                                {...filteredProps}
-                                style={{ ...withStyles, ...style }}
-                                // forward ref
-                                ref={ref}
-                                // set class names
-                                className={cleanTemplate(
-                                    mergeArrays(
-                                        template,
-                                        templateElements.map((t) =>
-                                            t({ ...props, $as } as React.ComponentPropsWithRef<C> & K)
-                                        )
-                                    ),
-                                    props.className
-                                )}
-                                $as={$as}
-                            />
-                        )
-                    }
                     return (
                         <FinalElement
                             // forward props
@@ -315,6 +282,7 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
                                 ),
                                 props.className
                             )}
+                            {...(isTw(Element) ? { $as } : {})}
                         />
                     )
                 }
@@ -340,7 +308,7 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
 const intrinsicElementsMap: IntrinsicElementsTemplateFunctionsMap = domElements.reduce(
     <K extends IntrinsicElementsKeys>(acc: IntrinsicElementsTemplateFunctionsMap, DomElement: K) => ({
         ...acc,
-        [DomElement]: templateFunctionFactory(DomElement as any)
+        [DomElement]: templateFunctionFactory(DomElement)
     }),
     {} as IntrinsicElementsTemplateFunctionsMap
 )
