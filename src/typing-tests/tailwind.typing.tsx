@@ -1,4 +1,4 @@
-import tw, { TailwindComponent, TailwindComponentInnerProps } from "../tailwind"
+import tw, { TailwindComponent, TailwindComponentAllInnerProps, TailwindComponentInnerProps } from "../tailwind"
 // @ts-ignore
 import React from "react"
 import { expectExactAny, expectExactType, expectNotAny, expectType } from "./test-types"
@@ -144,7 +144,7 @@ const sfd2clk = <T $as="dive" href="/" />
 const sfd2csdlk = <T $as="div" />
 
 type TTTTT = React.ComponentPropsWithRef<typeof CA>
-type TTTTT1 = TailwindComponentInnerProps<typeof CA>
+type TTTTT1 = TailwindComponentAllInnerProps<typeof CA>
 
 const sfdkj3 = (
     <T

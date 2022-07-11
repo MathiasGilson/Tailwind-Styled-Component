@@ -41,14 +41,6 @@ exports[`tw matches snapshot with intrinsic element 1`] = `
 </DocumentFragment>
 `;
 
-exports[`tw matches snapshot with three properties including \`withStyle\` 1`] = `
-<DocumentFragment>
-  <div
-    class="bg-gray-500 p-10"
-    style="background-color: blue;"
-  >
-    test
-  </div>
 exports[`tw matches snapshot with overridden classNames 1`] = `
 <DocumentFragment>
   <div
@@ -62,6 +54,17 @@ exports[`tw matches snapshot with overridden classNames where child conflicting 
   <div
     class="p-4"
   />
+</DocumentFragment>
+`;
+
+exports[`tw matches snapshot with three properties including \`withStyle\` 1`] = `
+<DocumentFragment>
+  <div
+    class="bg-gray-500 p-10"
+    style="background-color: blue;"
+  >
+    test
+  </div>
 </DocumentFragment>
 `;
 

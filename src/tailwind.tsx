@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 
 const isTwElement = Symbol("isTwElement?")
 
-export type IsTwElement = { [isTwElement]: boolean }
+export type IsTwElement = { [isTwElement]: true }
 export type FalseyValue = undefined | null | false
 
 export type FlattenInterpolation<P> = ReadonlyArray<Interpolation<P>>
@@ -26,7 +26,7 @@ export const mergeArrays = (template: TemplateStringsArray, templateElements: (s
     )
 }
 
-export const cleanTemplate = (template: TemplateElementResult[], inheritedClasses: string = "") => {
+export const cleanTemplate = (template: Array<Interpolation<any>>, inheritedClasses: string = "") => {
     const newClasses: string[] = template
         .join(" ")
         .trim()
@@ -45,10 +45,13 @@ export const cleanTemplate = (template: TemplateElementResult[], inheritedClasse
 }
 
 export type PickU<T, K extends keyof T> = T extends any ? { [P in K]: T[P] } : never
-export type OmitU<T, K extends keyof T> = T extends any ? PickU<T, Exclude<keyof T, K>> : never
+// export type OmitU<T, K extends keyof T> = T extends any ? PickU<T, Exclude<keyof T, K>> : never
+export type RemoveIndex<T> = {
+    [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
+}
 
 /**
- *
+ * ForwardRef typings
  */
 export type TailwindExoticComponent<P> = PickU<
     React.ForwardRefExoticComponent<P>,
@@ -61,34 +64,21 @@ type MergeProps<O extends object, P extends {} = {}> =
 // RemoveIndex<P> is used to make React.ComponentPropsWithRef typesafe on Tailwind components, delete if causing issues
 
 type TailwindPropHelper<
-    // The other props added by the template
     P,
-    O extends object
-    // $As extends string | React.ComponentType<any> = C
+    O extends object = {}
+    // PickU is needed here to make $as typing work
 > = PickU<MergeProps<O, P>, keyof MergeProps<O, P>>
-
-export type RemoveIndex<T> = {
-    [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
-}
-export type TailwindComponentProps<
-    // The Component from whose props are derived
-    C extends string | React.ComponentType<any>,
-    // The other props added by the template
-    O extends object = {},
-    P = C extends AnyTailwindComponent
-        ? TailwindComponentInnerProps<C> & TailwindComponentInnerOtherProps<C>
-        : C extends IntrinsicElementsKeys | React.ComponentType<any>
-        ? React.ComponentPropsWithRef<C>
-        : never
-> =
-    // Distribute O if O is a union type
-    O extends object ? TailwindPropHelper<P, O> : never
 
 type TailwindComponentPropsWith$As<
     P extends object,
     O extends object,
-    $As extends string | React.ComponentType<any> = React.ComponentType<P>
-> = P & O & TailwindComponentProps<$As> & { $as?: $As }
+    $As extends string | React.ComponentType<any> = React.ComponentType<P>,
+    P2 = $As extends AnyTailwindComponent
+        ? TailwindComponentAllInnerProps<$As>
+        : $As extends IntrinsicElementsKeys | React.ComponentType<any>
+        ? React.ComponentPropsWithRef<$As>
+        : never
+> = P & O & TailwindPropHelper<P2> & { $as?: $As }
 
 /**
  * An interface represent a component styled by tailwind-styled-components
@@ -133,17 +123,10 @@ export interface WithStyle<P extends object, O extends object = {}> {
         styles: CSSProperties | ((p: P & O & S) => CSSProperties)
     ) => TailwindComponent<P, O & S>
 }
-
+/**
+ * Generice TailwindComponent
+ */
 type AnyTailwindComponent = TailwindComponent<any, any>
-
-// type F<T$ extends {[isTwElement]: boolean}> = T$
-
-// let ddf: F<{[isTwElement]: boolean}>
-
-/**  Avoid unneccessary type inference */
-// type NoInfer<T> = [T][T extends any ? 0 : never]
-
-type TemplateElementResult = string | undefined | null | false
 
 /**
  * A template function that accepts a template literal of tailwind classes and returns a tailwind-styled-component
@@ -172,29 +155,6 @@ export interface TemplateFunction<P extends object, O extends object = {}> {
  */
 const removeTransientProps = ([key]: [string, any]): boolean => key.charAt(0) !== "$"
 
-/**
- * A factory functions that returns templateFunctions
- *
- * @export
- * @interface TemplateFunctionFactory
- */
-// export interface TemplateFunctionFactory {
-//     /** overload needed to minimize `union is too complex` errors
-//      * when testing due to the size of the `IntrinsicElementsKeys` union */
-//     <E2 extends IntrinsicElementsKeys, K2 extends object = {}>(
-//         Element: TailwindComponent<E2, K2>
-//     ): TemplateFunction<E2, K2>
-
-//     <E extends TailwindComponent<any, any>>(Element: E): TemplateFunction<
-//         InnerTailwindComponent<E>,
-//         InnerTailwindComponentOtherProps<E>
-//     >
-
-//     <E extends IntrinsicElementsKeys>(Element: E): TemplateFunction<E>
-
-//     <E extends React.ComponentType<any>>(Element: E): TemplateFunction<E>
-// }
-
 export type TailwindComponentInnerProps<C extends AnyTailwindComponent> = C extends TailwindComponent<infer P, any>
     ? P
     : never
@@ -202,6 +162,9 @@ export type TailwindComponentInnerProps<C extends AnyTailwindComponent> = C exte
 export type TailwindComponentInnerOtherProps<C extends AnyTailwindComponent> = C extends TailwindComponent<any, infer O>
     ? O
     : never
+
+export type TailwindComponentAllInnerProps<C extends AnyTailwindComponent> = TailwindComponentInnerProps<C> &
+    TailwindComponentInnerOtherProps<C>
 
 export type IntrinsicElementsTemplateFunctionsMap = {
     [RTag in keyof JSX.IntrinsicElements]: TemplateFunction<JSX.IntrinsicElements[RTag]>
