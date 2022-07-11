@@ -25,6 +25,7 @@
         "postbuild": "yarn run test",
         "clean": "rimraf dist",
         "pretest": "jest --clearCache",
+        "posttest": "yarn run test:types",
         "test": "jest",
         "test:types": "tsc -p ./src/typing-tests/tsconfig.json",
         "prepublishOnly": "npm run clean && npm run build"
