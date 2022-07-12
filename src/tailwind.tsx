@@ -195,62 +195,48 @@ const isTw = (c: any): c is AnyTailwindComponent => c[isTwElement] === true
 // type FDF = React.ElementType<JSX.IntrinsicElements['div']>
 
 const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType>(Element: C): any => {
-    return <K extends object = {}>(
-        template: TemplateStringsArray,
-        ...templateElements: ((props: React.ComponentPropsWithRef<C> & K) => string | undefined | null)[]
-    ) => {
-        const TwComponentConstructor = (
-            styleArray: (CSSProperties | ((p: React.ComponentPropsWithRef<C> & K) => CSSProperties))[] = []
-        ) => {
+    return (template: TemplateStringsArray, ...templateElements: ((props: any) => string | undefined | null)[]) => {
+        const TwComponentConstructor = (styleArray: (CSSProperties | ((p: any) => CSSProperties))[] = []) => {
             // const renderFunction =
-            const TwComponent: TailwindComponent<any, K> = React.forwardRef(
-                (
-                    baseProps: React.ComponentPropsWithRef<C> & K & { $as?: React.ElementType },
-                    ref: React.ForwardedRef<C>
-                ): JSX.Element => {
-                    const { $as = Element, style = {}, ...props } = baseProps
+            const TwComponent: any = React.forwardRef((baseProps: any, ref: any): JSX.Element => {
+                const { $as = Element, style = {}, ...props } = baseProps
 
-                    // set FinalElement based on if Element is a TailwindComponent, $as defaults to Element if undefined
-                    const FinalElement = isTw(Element) ? Element : $as
+                // set FinalElement based on if Element is a TailwindComponent, $as defaults to Element if undefined
+                const FinalElement = isTw(Element) ? Element : $as
 
-                    const withStyles: CSSProperties = styleArray
-                        ? styleArray.reduce<CSSProperties>(
-                              (acc, intStyle) =>
-                                  Object.assign(acc, typeof intStyle === "function" ? intStyle(baseProps) : intStyle),
-                              {} as CSSProperties
-                          )
-                        : {}
-                    // const style = TwComponent.style(props)
+                const withStyles: CSSProperties = styleArray
+                    ? styleArray.reduce<CSSProperties>(
+                          (acc, intStyle) =>
+                              Object.assign(acc, typeof intStyle === "function" ? intStyle(baseProps) : intStyle),
+                          {} as CSSProperties
+                      )
+                    : {}
+                // const style = TwComponent.style(props)
 
-                    // filter out props that starts with "$" props except when styling a tailwind-styled-component
-                    const filteredProps: React.ComponentPropsWithRef<C> & K = isTw(FinalElement)
-                        ? (props as React.ComponentPropsWithRef<C> & K)
-                        : (Object.fromEntries(
-                              Object.entries(props).filter(removeTransientProps)
-                          ) as React.ComponentPropsWithRef<C> & K)
-                    return (
-                        <FinalElement
-                            // forward props
-                            {...filteredProps}
-                            style={{ ...withStyles, ...style }}
-                            // forward ref
-                            ref={ref}
-                            // set class names
-                            className={cleanTemplate(
-                                mergeArrays(
-                                    template,
-                                    templateElements.map((t) =>
-                                        t({ ...props, $as } as React.ComponentPropsWithRef<C> & K)
-                                    )
-                                ),
-                                props.className
-                            )}
-                            // forward $as prop when styling a tailwind-styled-component
-                            {...(isTw(Element) ? { $as } : {})}
-                        />
-                    )
-                }
-            ) as any
+                // filter out props that starts with "$" props except when styling a tailwind-styled-component
+                const filteredProps = isTw(FinalElement)
+                    ? props
+                    : (Object.fromEntries(Object.entries(props).filter(removeTransientProps)) as any)
+                return (
+                    <FinalElement
+                        // forward props
+                        {...filteredProps}
+                        style={{ ...withStyles, ...style }}
+                        // forward ref
+                        ref={ref}
+                        // set class names
+                        className={cleanTemplate(
+                            mergeArrays(
+                                template,
+                                templateElements.map((t) => t({ ...props, $as }))
+                            ),
+                            props.className
+                        )}
+                        // forward $as prop when styling a tailwind-styled-component
+                        {...(isTw(Element) ? { $as } : {})}
+                    />
+                )
+            }) as any
             // symbol identifier for detecting tailwind-styled-components
             TwComponent[isTwElement] = true
             // This enables the react tree to show a name in devtools, much better debugging experience Note: Far from perfect, better implementations welcome
@@ -259,9 +245,8 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
             } else {
                 TwComponent.displayName = "tw." + Element
             }
-            TwComponent.withStyle = <S extends object = {}>(
-                styles: ((p: React.ComponentPropsWithRef<C> & S) => CSSProperties) | CSSProperties
-            ) => TwComponentConstructor(styleArray.concat(styles)) as any
+            TwComponent.withStyle = (styles: ((p: any) => CSSProperties) | CSSProperties) =>
+                TwComponentConstructor(styleArray.concat(styles)) as any
 
             return TwComponent
         }
