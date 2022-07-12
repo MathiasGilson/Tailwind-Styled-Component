@@ -245,6 +245,7 @@ const templateFunctionFactory: TailwindInterface = (<C extends React.ElementType
                                 ),
                                 props.className
                             )}
+                            // forward $as prop when styling a tailwind-styled-component
                             {...(isTw(Element) ? { $as } : {})}
                         />
                     )
