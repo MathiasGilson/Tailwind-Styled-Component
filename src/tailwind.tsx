@@ -2,6 +2,7 @@ import React from "react"
 import { twMerge } from "tailwind-merge"
 import domElements from "./domElements"
 
+
 const isTwElement = Symbol("isTwElement?")
 
 type IntrinsicElementsKeys = keyof JSX.IntrinsicElements
@@ -214,7 +215,10 @@ const intrinsicElementsMap: IntrinsicElementsTemplateFunctionsMap = domElements.
     {} as IntrinsicElementsTemplateFunctionsMap
 )
 
-const tw = Object.assign<{}, IntrinsicElementsTemplateFunctionsMap>
-  (templateFunctionFactory, intrinsicElementsMap)
 
-export default tw
+const tw = Object.assign
+  ({
+    factory: templateFunctionFactory
+  }, intrinsicElementsMap);
+
+export default tw;
