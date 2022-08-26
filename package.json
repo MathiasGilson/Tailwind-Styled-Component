@@ -13,17 +13,19 @@
         "tailwindcss-ui"
     ],
     "description": "Create tailwind css react components like styled components with classes name on multiple lines",
-    "main": "dist/index.js",
+    "main": "dist/tailwind-styled-components.cjs.js",
+    "module": "dist/tailwind-styled-components.esm.js",
     "types": "dist/index.d.ts",
     "files": [
         "dist/**/*"
     ],
     "scripts": {
-        "build": "tsc",
+        "build": "node esbuild.js && tsc -p tsconfig.types.json",
+        "prebuild": "yarn run clean",
         "postbuild": "yarn run test",
-        "dev": "tsc -w",
         "clean": "rimraf dist",
         "pretest": "jest --clearCache",
+        "posttest": "yarn run test:types",
         "test": "jest",
         "test:types": "tsc -p ./src/typing-tests/tsconfig.json",
         "prepublishOnly": "npm run clean && npm run build"
@@ -37,7 +39,7 @@
     "devDependencies": {
         "@testing-library/jest-dom": "^5.16.4",
         "@testing-library/react": "^12.1.2",
-        "@types/jest": "^27.4.0",
+        "@types/jest": "^28.1.4",
         "@types/node": "^17.0.8",
         "@types/react": "^17.0.38",
         "@typescript-eslint/eslint-plugin": "^5.9.0",
@@ -46,12 +48,13 @@
         "eslint": "^8.6.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
-        "jest": "^27.5.1",
+        "jest": "^28.0.0",
+        "jest-environment-jsdom": "^28.1.2",
         "prettier": "^2.5.1",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "rimraf": "^3.0.2",
-        "ts-jest": "^27.1.4",
+        "ts-jest": "^28.0.5",
         "typescript": "^4.5.4"
     },
     "peerDependencies": {
@@ -59,6 +62,6 @@
         "react-dom": ">= 16.8.0"
     },
     "dependencies": {
-        "tailwind-merge": "^1.2.0"
+        "tailwind-merge": "^1.3.0"
     }
 }

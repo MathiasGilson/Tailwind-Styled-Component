@@ -1,4 +1,4 @@
-import tw from "../tailwind"
+import tw, { TailwindComponent, TailwindComponentAllInnerProps, TailwindComponentInnerProps } from "../tailwind"
 // @ts-ignore
 import React from "react"
 import { expectExactAny, expectExactType, expectNotAny, expectType } from "./test-types"
@@ -6,11 +6,12 @@ import { expectExactAny, expectExactType, expectNotAny, expectType } from "./tes
 const Divvy2 = tw("div")<{ $test1: string }>`
         text-black
         `
-const RedDiv = tw(Divvy2)`bg-red-500`
+const RedDiv = tw(Divvy2)`bg-red-500 ${(p) => p.$test1 || ""}`
 
 const Div = tw.div``
 const H1 = tw.h1``
 const A = tw.a``
+const RedDiv2jn = tw(H1)`bg-red-500`
 
 /**Test: Properly gives a type error when wrong props are used */
 {
@@ -19,6 +20,8 @@ const A = tw.a``
     // @ts-expect-error
     const Test2 = Div({ href: "/" })
 }
+
+const Test2 = Div({ $as: "a", href: "/" })
 
 /**Test: props are type cast properly with $as prop */
 {
@@ -46,22 +49,45 @@ const C4 = (props: { booleanProp: boolean; children?: string }) => <div children
 const C5 = (props: React.PropsWithChildren<{ booleanProp: boolean }>) => <div children={props.booleanProp} />
 
 const T = tw.div``
-const HasClassName = tw(Component1)``
-const HasClassNameAndBoolean = tw(C3)`
+type T = TailwindComponent<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, {}>
+expectType<T>(T)
+
+const CA = tw(Component1)``
+expectType<TailwindComponent<{ className: string; booleanProp?: boolean | undefined }, {}>>(CA)
+
+const CB = tw(C3)`
 h-full
 `
-const HasChildren = tw(C4)``
-const HasReqChildren = tw(C5)``
+expectType<
+    TailwindComponent<
+        {
+            booleanProp: boolean
+        },
+        {}
+    >
+>(CB)
 
-function testfunc<E extends React.ComponentType<any>, P = React.ComponentProps<E>>(e: E): P {
-    return e as any
-}
+const CC = tw(C4)``
+expectType<
+    TailwindComponent<
+        {
+            booleanProp: boolean
+            children?: string | undefined
+        },
+        {}
+    >
+>(CC)
 
-const result = testfunc(C5)
-
-expectType<{ booleanProp: boolean } & { children?: React.ReactNode }>(result)
-// @ts-expect-error
-expectType<{ booleanProp: boolean } & { children: React.ReactNode }>(result)
+const CD = tw(C5)``
+expectExactType<
+    TailwindComponent<
+        {
+            booleanProp: boolean
+            children?: React.ReactNode
+        },
+        {}
+    >
+>(CD)
 
 // type P =
 
@@ -86,26 +112,28 @@ const AsA = <RedDiv $as="a" $test1="true" href="http://" />
 
 const test1 = <T $as="a" href="" />
 // @ts-expect-error
-const test2 = <HasClassName $as="a" href="" />
-const test3 = <HasClassName $as="a" href="" className="" />
+const test2 = <CA $as="a" href="" />
+const test3 = <CA $as="a" href="" className="" />
+
+const test4 = <NoProps />
 // @ts-expect-error
-const test4 = <NoProps $as="div" href="" />
+const test4a = <NoProps $as="div" href="" />
 const test4b = <NoProps $as="a" href="" />
 const test5 = <T $as="div" onChange={() => {}} />
-const test6 = <HasClassName $as="div" onChange={() => {}} className="" />
+const test6 = <CA $as="div" onChange={() => {}} className="" />
 // @ts-expect-error
-const test12 = <HasClassName $as="div" onChange={() => {}} className="" booleanProp="true" />
+const test12 = <CA $as="div" onChange={() => {}} className="" booleanProp="true" />
 // @ts-expect-error
-const test12b = <HasClassName onChange={() => {}} className="" booleanProp="true" />
-const test12c = <HasClassName className="" booleanProp={true} />
-const test12d = <HasClassName className="" />
-const test13 = <HasClassName $as="div" onChange={() => {}} className="" booleanProp={true} />
+const test12b = <CA onChange={() => {}} className="" booleanProp="true" />
+const test12c = <CA className="" booleanProp={true} />
+const test12d = <CA className="" />
+const test13 = <CA $as="div" onChange={() => {}} className="" booleanProp={true} />
 const test8 = <NoProps $as="div" onChange={() => {}} />
 // @ts-expect-error
-const test7 = <HasClassName onChange={() => {}} />
+const test7 = <CA onChange={() => {}} />
 // @ts-expect-error
-const test11 = <HasClassName onChange={() => {}} classname="" />
-// const test11b = HasClassName({onChange:() => {}, classname:""})
+const test11 = <CA onChange={() => {}} classname="" />
+// const test11b = CA({onChange:() => {}, classname:""})
 // @ts-expect-error
 const test9 = <NoProps onChange={() => {}} />
 // @ts-expect-error
@@ -113,7 +141,10 @@ const test10 = <T $as="div" href="/" />
 // @ts-expect-error
 const sfd2clk = <T $as="dive" href="/" />
 
-type TTTTT = React.ComponentPropsWithRef<typeof HasClassName>
+const sfd2csdlk = <T $as="div" />
+
+type TTTTT = React.ComponentPropsWithRef<typeof CA>
+type TTTTT1 = TailwindComponentAllInnerProps<typeof CA>
 
 const sfdkj3 = (
     <T

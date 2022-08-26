@@ -46,7 +46,7 @@ describe("tw", () => {
         const Div = tw.div`bg-gray-400`
         let r: any = undefined
         const HasRef = () => {
-            const ref = useRef<HTMLDivElement>()
+            const ref = useRef<HTMLDivElement>(null)
             useEffect(() => {
                 r = ref
             }, [ref])
@@ -132,14 +132,27 @@ describe("tw", () => {
                 test
             </Div>
         )
+        expect(asFragment()).toMatchSnapshot()
+    })
+    it("matches snapshot with three properties including `withStyle`", () => {
+        const Div = tw.div<{ $test1?: string; $test2?: string }>`
+      bg-gray-500
+      p-10
+      `.withStyle<{ $bgColor: string }>((p) => ({ backgroundColor: p.$bgColor }))
+
+        const { asFragment } = render(
+            <Div $test1="true" $test2="true" $bgColor="blue">
+                test
+            </Div>
+        )
 
         expect(asFragment()).toMatchSnapshot()
     })
 
     it("matches snapshot with two dynamic properties", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
-      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
-      ${(p: any) => (p.$test2 === "true" ? `p-10` : ``)}
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p) => (p.$test2 === "true" ? `p-10` : ``)}
       `
 
         const { asFragment } = render(
@@ -153,7 +166,7 @@ describe("tw", () => {
 
     it("ignores undefined as return value", () => {
         const Div = tw.div<{ $test1?: string }>`
-      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : undefined)}
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : undefined)}
       p-10
       `
 
@@ -165,7 +178,7 @@ describe("tw", () => {
 
     it("ignores null as return value", () => {
         const Div = tw.div<{ $test1?: string }>`
-      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : null)}
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : null)}
       p-10
       `
 
@@ -177,7 +190,7 @@ describe("tw", () => {
 
     it("ignores empty string as return value", () => {
         const Div = tw.div<{ $test1?: string }>`
-      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       p-10
       `
 
@@ -189,7 +202,7 @@ describe("tw", () => {
 
     it("ignores false as return value", () => {
         const Div = tw.div<{ $test1?: string }>`
-      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : false)}
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : false)}
       p-10
       `
 
@@ -201,8 +214,8 @@ describe("tw", () => {
 
     it("works using the short hand syntax for false or undefined", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
-      ${(p: any) => p.$test1 === "true" && `bg-gray-500`}
-      ${(p: any) => p.$test2 && `bg-gray-500`}
+      ${(p) => p.$test1 === "true" && `bg-gray-500`}
+      ${(p) => p.$test2 && `bg-gray-500`}
       p-10
       `
 
@@ -215,9 +228,9 @@ describe("tw", () => {
     it("matches snapshot with two properties & two dynamic properties and maintains class order", () => {
         const Div = tw.div<{ $test1?: string; $test2?: string }>`
       z-10
-      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       text-white
-      ${(p: any) => (p.$test2 === "true" ? `p-10` : ``)}
+      ${(p) => (p.$test2 === "true" ? `p-10` : ``)}
       `
 
         const { asFragment } = render(
@@ -232,7 +245,7 @@ describe("tw", () => {
     it("should render tag Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
       text-black
-      ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+      ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
       `
 
         const { asFragment } = render(<Div $as="a" $test1="true" href="http://" />)
@@ -257,7 +270,7 @@ describe("tw", () => {
     it("should render Component as html tag in `$as` prop", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
         const RedDiv = tw(Div)`bg-red-500`
         const { asFragment } = render(<RedDiv $as="a" $test1="true" href="http://" />)
@@ -267,9 +280,9 @@ describe("tw", () => {
     it("should render component as component in `$as` prop: test 1", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const { asFragment } = render(<Div $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
@@ -282,9 +295,9 @@ describe("tw", () => {
         }
         const ClassDiv = tw(TestComp)<{ $test1: string }>`
         text-black
-        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const { asFragment } = render(<ClassDiv $as={Nav} $test1="true" $isVertical={true} />)
         expect(asFragment()).toMatchSnapshot()
@@ -293,12 +306,51 @@ describe("tw", () => {
     it("should render component as component in `$as` prop: test 2", () => {
         const Div = tw.div<{ $test1: string }>`
         text-black
-        ${(p: any) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
+        ${(p) => (p.$test1 === "true" ? `bg-gray-500` : ``)}
         `
-        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p: any) =>
+        const Nav = tw.nav<{ $isVertical: boolean }>`flex h-20 w-full ${(p) =>
             p.$isVertical === true ? "flex-col h-full w-20" : ""}`
         const RedDiv = tw(Div)`bg-red-500`
         const { asFragment } = render(<RedDiv $as={Nav} $test1="true" $isVertical={false} />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+    it("should not clear merged inheritedClasses without $as", () => {
+        const Heading = tw.p`
+        text-4xl font-bold text-gray-700
+      `
+        // extend the base Heading styled component
+        const Display = tw(Heading)`
+        text-6xl
+      `
+        const WithoutAs = ({}) => {
+            return (
+                // without the $as prop, all classnames will be merged in correctly.
+                // text-6xl font-bold text-gray-700 border-2 p-4
+                <Display className="border-2 p-4">{}</Display>
+            )
+        }
+
+        const { asFragment } = render(<WithoutAs />)
+        expect(asFragment()).toMatchSnapshot()
+    })
+    it("should not clear merged inheritedClasses with $as", () => {
+        const Heading = tw.p`
+        text-4xl font-bold text-gray-700
+      `
+        // extend the base Heading styled component
+        const Display = tw(Heading)`
+        text-6xl
+      `
+        const WithAs = ({}) => {
+            return (
+                // with the $as prop, only the most recent component's classes will be used
+                // text-6xl border-2 p-4
+                <Display className="border-2 p-4" $as="h1">
+                    {}
+                </Display>
+            )
+        }
+        const { asFragment } = render(<WithAs />)
         expect(asFragment()).toMatchSnapshot()
     })
 })

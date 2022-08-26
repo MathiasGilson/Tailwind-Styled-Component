@@ -7,7 +7,7 @@
         "declaration": true,
         "sourceMap": false,
         "outDir": "./dist",
-        "jsx": "react",
+        "jsx": "react-jsx",
         "removeComments": true,
         "strict": true,
         "noImplicitAny": true,
