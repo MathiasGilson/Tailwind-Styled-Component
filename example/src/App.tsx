@@ -23,6 +23,20 @@ export default () => {
                 <Title $bold={false} $large={true}>
                     Hello
                 </Title>
+                <div
+                    className={merge(
+                        BUTTON_CLASSES,
+                        "flex flex-col items-center justify-center",
+                        "bg-red-500 hover:bg-indigo-700",
+                        "rounded-md border border-transparent",
+                        "w-full",
+                        "px-8 py-3 md:py-4 md:px-10",
+                        "text-center text-base font-medium text-white md:text-lg",
+                        blue && `text-blue-400`
+                    )}
+                >
+                    Loading...
+                </div>
                 <Title $bold={false} $large={false} $as={RedContainer}>
                     Hello, I'm a Title rendered as a RedContainer, Polymorphism!
                 </Title>
