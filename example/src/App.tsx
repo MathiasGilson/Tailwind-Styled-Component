@@ -24,7 +24,7 @@ export default () => {
                     Hello
                 </Title>
                 <div
-                    className={merge(
+                    className={classNames(
                         BUTTON_CLASSES,
                         "flex flex-col items-center justify-center",
                         "bg-red-500 hover:bg-indigo-700",
