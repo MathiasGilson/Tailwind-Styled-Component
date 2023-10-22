@@ -64,7 +64,7 @@ type MergeProps<O extends object, P extends {} = {}> =
 // RemoveIndex<P> is used to make React.ComponentPropsWithRef typesafe on Tailwind components, delete if causing issues
 
 type TailwindPropHelper<
-    P,
+    P extends object = {},
     O extends object = {}
     // PickU is needed here to make $as typing work
 > = PickU<MergeProps<O, P>, keyof MergeProps<O, P>>
@@ -73,7 +73,7 @@ type TailwindComponentPropsWith$As<
     P extends object,
     O extends object,
     $As extends string | React.ComponentType<any> = React.ComponentType<P>,
-    P2 = $As extends AnyTailwindComponent
+    P2 extends object = $As extends AnyTailwindComponent
         ? TailwindComponentAllInnerProps<$As>
         : $As extends IntrinsicElementsKeys | React.ComponentType<any>
         ? React.ComponentPropsWithRef<$As>
