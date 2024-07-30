@@ -65,7 +65,9 @@ yarn add -D tailwind-styled-components
 
 *⚠️ This extension requires TailwindCSS to be installed and configured on your project too. [Install TailwindCSS](https://tailwindcss.com/docs/installation)*
 
-#### [Optional] Configure IntelliSense autocomplete on VSCode
+### [Optional] Configure IntelliSense Autocomplete 
+
+#### VSCode
 
 First, install Tailwind CSS IntelliSense VSCode extension
 
@@ -85,6 +87,21 @@ Then add these user settings ([How to edit VSCode settings?](https://code.visual
     "tw`([^`]*)", // tw`...`
     "tw\\.[^`]+`([^`]*)`", // tw.xxx<xxx>`...`
     "tw\\(.*?\\).*?`([^`]*)" // tw(Component)<xxx>`...`
+]
+```
+
+#### JetBrains
+
+1. Install [Tailwind CSS Plugin for JetBrains IDEs](https://plugins.jetbrains.com/plugin/15321-tailwind-css)
+2. Go to Settings > Languages & Frameworks > Style Sheets > Tailwind CSS
+3. Go to the bottom of the configuration to `experimental.classRegex`
+4. Add this config to `classRegex`
+
+```
+"classRegex": [
+  "tw`([^`]*)",
+  "tw\\.[^`]+`([^`]*)`",
+  "tw\\(.*?\\).*?`([^`]*)"
 ]
 ```
 
