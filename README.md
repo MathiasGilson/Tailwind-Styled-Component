@@ -285,3 +285,6 @@ render(
     </Container>
 )
 ```
+
+
+Sponsored by [qualtir.com](https://qualtir.com)
